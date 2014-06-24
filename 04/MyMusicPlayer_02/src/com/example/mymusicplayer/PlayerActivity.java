@@ -89,7 +89,7 @@ public class PlayerActivity extends Activity {
 					container, false);
 
 			// conectar el butón de layout con el objeto de código en Java
-			mButton1 = (Button) rootView.findViewById(R.id.button1);
+			mButton1 = (Button) rootView.findViewById(R.id.buttonPlayPause);
 			// registrar oyente de clic por el butón
 			mButton1.setOnClickListener(mButton1ClickListener);
 
