@@ -9,5 +9,6 @@
     <string name="buttonFastForwardContentDescription">Fast-Forward Button</string>
     <string name="buttonRewindContentDescription">Rewind Button</string>
     <string name="buttonRepeatContentDescription">Repeat Button</string>
+    <string name="buttonReplayContentDescription">Replay Button</string>
 
 </resources>

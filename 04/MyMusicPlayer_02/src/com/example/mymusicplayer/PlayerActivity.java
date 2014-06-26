@@ -1,150 +1,281 @@
 package com.example.mymusicplayer;
 
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.Fragment;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.Toast;
-import android.os.Build;
+import android.widget.CompoundButton;
+import android.widget.ImageButton;
+import android.widget.ToggleButton;
 
-public class PlayerActivity extends Activity {
-
+public class PlayerActivity extends Activity
+{
+	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate (Bundle savedInstanceState)
+	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_player);
-
-		if (savedInstanceState == null) {
+		
+		if (savedInstanceState == null)
+		{
 			getFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
 	}
-
+	
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-
+	public boolean onCreateOptionsMenu (Menu menu)
+	{
+		
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.player, menu);
 		return true;
 	}
-
+	
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected (MenuItem item)
+	{
 		// Handle action bar item clicks here. The action bar will
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
+		if (id == R.id.action_settings)
+		{
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
+	
 	/**
 	 * A placeholder fragment containing a simple view.
 	 */
 	public static class PlaceholderFragment extends Fragment implements
-			MediaPlayer.OnCompletionListener {
-
+			MediaPlayer.OnCompletionListener
+	{
+		
 		MediaPlayer mMediaPlayer;
 		boolean isPlaying; // Guardar estado de MediaPlayer, esta tocando?
-
-		Button mButton1;
-		View.OnClickListener mButton1ClickListener = new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Toast.makeText(
-						getActivity(), // !Toast!
-						"Botón de clic, " + (isPlaying ? "Pausar" : "Iniciar"),
-						Toast.LENGTH_SHORT).show();
-				if (isPlaying) { // Si esta tocando
-					mMediaPlayer.pause(); // pausarlo
-				} else { // Si no,
-					mMediaPlayer.start(); // iniciarlo
+		
+		ImageButton mButtonPlayPause;
+		View.OnClickListener mButtonPlayPauseClickListener =
+			new View.OnClickListener()
+			{
+				@Override
+				public void onClick (View v)
+				{
+					if (isPlaying)
+					{ // Si esta tocando
+						mMediaPlayer.pause(); // pausarlo
+					}
+					else
+					{ // Si no,
+						mMediaPlayer.start(); // iniciarlo
+					}
+					// actualizar las imagenes de el butón
+					updateButtonImage(mMediaPlayer.isPlaying());
 				}
-				updateButtonImage(mMediaPlayer.isPlaying()); // actualizar las
-																// imagenes de
-																// el butón
-			}
-		};
-
-		public PlaceholderFragment() {
+			};
+		
+		ImageButton mButtonStop;
+		View.OnClickListener mButtonStopClickListener =
+			new View.OnClickListener()
+			{
+				@Override
+				public void onClick (View v)
+				{
+					if (isPlaying)
+					{
+						mMediaPlayer.pause();
+					}
+					mMediaPlayer.seekTo(0);
+					updateButtonImage(false);
+				}
+			};
+		
+		static final int DEFAULT_SKIP_TIME = 10000;
+		ImageButton mButtonRewind;
+		View.OnClickListener mButtonRewindClickListener =
+			new View.OnClickListener()
+			{
+				
+				@Override
+				public void onClick (View v)
+				{
+					int currentPosition = mMediaPlayer.getCurrentPosition();
+					if (currentPosition > 0)
+					{
+						int newPosition =
+							(currentPosition > DEFAULT_SKIP_TIME) ?
+									currentPosition - DEFAULT_SKIP_TIME
+									: 0;
+						mMediaPlayer.seekTo(newPosition);
+					}
+					
+					if (isPlaying)
+					{
+						mMediaPlayer.start();
+					}
+				}
+			};
+		
+		ImageButton mButtonFastForward;
+		View.OnClickListener mButtonFastForwardClickListener =
+			new View.OnClickListener()
+			{
+				@Override
+				public void onClick (View v)
+				{
+					int duration = mMediaPlayer.getDuration();
+					int currentPosition = mMediaPlayer.getCurrentPosition();
+					
+					if (currentPosition < duration)
+					{
+						int newPosition =
+							(currentPosition + DEFAULT_SKIP_TIME < duration) ?
+									currentPosition + DEFAULT_SKIP_TIME
+									: duration;
+						mMediaPlayer.seekTo(newPosition);
+					}
+					
+					if (isPlaying)
+					{
+						mMediaPlayer.start();
+					}
+				}
+			};
+		
+		ToggleButton mToggleButtonReplay;
+		CompoundButton.OnCheckedChangeListener mToggleButtonReplayCheckedChangeListener =
+			new CompoundButton.OnCheckedChangeListener()
+			{
+				@Override
+				public void onCheckedChanged (CompoundButton buttonView,
+						boolean isChecked)
+				{
+					mMediaPlayer.setLooping(isChecked);
+					float newAlpha = 1.0f;
+					if (!isChecked)
+					{
+						newAlpha = 0.5f;
+					}
+					mToggleButtonReplay.setAlpha(newAlpha);
+				}
+			};
+		
+		public PlaceholderFragment ()
+		{
 		}
-
+		
 		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_player,
-					container, false);
-
+		public View onCreateView (LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState)
+		{
+			View rootView =
+				inflater.inflate(R.layout.fragment_player, container, false);
+			
 			// conectar el butón de layout con el objeto de código en Java
-			mButton1 = (Button) rootView.findViewById(R.id.buttonPlayPause);
+			mButtonPlayPause =
+				(ImageButton) rootView.findViewById(R.id.buttonPlayPause);
 			// registrar oyente de clic por el butón
-			mButton1.setOnClickListener(mButton1ClickListener);
-
-			try {
+			mButtonPlayPause.setOnClickListener(mButtonPlayPauseClickListener);
+			
+			mButtonStop = (ImageButton) rootView.findViewById(R.id.buttonStop);
+			mButtonStop.setOnClickListener(mButtonStopClickListener);
+			
+			mButtonRewind =
+				(ImageButton) rootView.findViewById(R.id.buttonRewind);
+			mButtonRewind.setOnClickListener(mButtonRewindClickListener);
+			
+			mButtonFastForward =
+				(ImageButton) rootView.findViewById(R.id.buttonFastForward);
+			mButtonFastForward
+					.setOnClickListener(mButtonFastForwardClickListener);
+			
+			mToggleButtonReplay =
+				(ToggleButton) rootView.findViewById(R.id.buttonReplay);
+			mToggleButtonReplay
+					.setOnCheckedChangeListener(mToggleButtonReplayCheckedChangeListener);
+			
+			try
+			{
 				mMediaPlayer = new MediaPlayer();
 				mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-				Uri mediaFileUri = Uri.parse("android.resource://"
-						+ getActivity().getPackageName() + "/"
-						+ R.raw.preview_temandoflores);
+				Uri mediaFileUri =
+					Uri.parse("android.resource://"
+							+ getActivity().getPackageName() + "/"
+							+ R.raw.preview_temandoflores);
 				mMediaPlayer.setDataSource(getActivity(), mediaFileUri);
 				mMediaPlayer.prepare();
 				mMediaPlayer.start();
-
+				
 				mMediaPlayer.pause();
 				// actualizar la imagen inicialmente
 				updateButtonImage(mMediaPlayer.isPlaying());
-
+				
 				// registrar este clasa para MediaPlayer.OnCompletionListener
 				mMediaPlayer.setOnCompletionListener(this);
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				e.printStackTrace();
 			}
-
+			
+			mToggleButtonReplay.setChecked(mMediaPlayer.isLooping());
+			float newAlpha = 1.0f;
+			if (!mToggleButtonReplay.isChecked())
+			{
+				newAlpha = 0.5f;
+			}
+			mToggleButtonReplay.setAlpha(newAlpha);
+			
 			return rootView;
 		}
-
+		
 		@Override
-		public void onDestroyView() {
+		public void onDestroyView ()
+		{
 			// método contador de onCreateView ()
 			// para destruir los recursos como MediaPlayer
-			if (mMediaPlayer != null) {
+			if (mMediaPlayer != null)
+			{
 				mMediaPlayer.release();
 				mMediaPlayer = null;
 			}
 			super.onDestroyView();
 		}
-
-		private void updateButtonImage(boolean aIsPlaying) {
+		
+		private void updateButtonImage (boolean aIsPlaying)
+		{
 			// para actualizar las imagenes de el butón
 			isPlaying = aIsPlaying;
-			if (isPlaying) { // si esta tocando
-				// mostrar la imagen de pausar
-				mButton1.setBackgroundResource(R.drawable.ic_action_pause);
-			} else { // si no
-				// mostrar la imagen de iniciar
-				mButton1.setBackgroundResource(R.drawable.ic_action_play);
+			if (isPlaying)
+			{ // si esta tocando
+			  // mostrar la imagen de pausar
+				mButtonPlayPause.setImageResource(R.drawable.ic_action_pause);
+				
+			}
+			else
+			{ // si no
+			  // mostrar la imagen de iniciar
+				mButtonPlayPause.setImageResource(R.drawable.ic_action_play);
 			}
 		}
-
+		
 		@Override
-		public void onCompletion(MediaPlayer mp) {
+		public void onCompletion (MediaPlayer mp)
+		{
 			// implementar MediaPlayer.OnCompletionListener
 			updateButtonImage(false);
 		}
-
+		
 	}
-
+	
 }

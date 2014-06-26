@@ -20,6 +20,36 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/buttonPlayPauseContentDescription"
             android:src="@drawable/ic_action_play" />
+
+        <ImageButton
+            android:id="@+id/buttonStop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/buttonStopContentDescription"
+            android:src="@drawable/ic_action_stop" />
+
+        <ImageButton
+            android:id="@+id/buttonRewind"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/buttonRewindContentDescription"
+            android:src="@drawable/ic_action_rewind" />
+
+        <ImageButton
+            android:id="@+id/buttonFastForward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/buttonFastForwardContentDescription"
+            android:src="@drawable/ic_action_fast_forward" />
+
+        <ToggleButton
+            android:id="@+id/buttonReplay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_action_replay"
+            android:contentDescription="@string/buttonReplayContentDescription"
+            android:textOff=""
+            android:textOn="" />
     </LinearLayout>
 
 </LinearLayout>

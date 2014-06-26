@@ -22,13 +22,22 @@ public final class R {
         public static final int activity_vertical_margin=0x7f050001;
     }
     public static final class drawable {
-        public static final int ic_action_pause=0x7f020000;
-        public static final int ic_action_play=0x7f020001;
-        public static final int ic_launcher=0x7f020002;
+        public static final int ic_action_fast_forward=0x7f020000;
+        public static final int ic_action_pause=0x7f020001;
+        public static final int ic_action_play=0x7f020002;
+        public static final int ic_action_repeat=0x7f020003;
+        public static final int ic_action_replay=0x7f020004;
+        public static final int ic_action_rewind=0x7f020005;
+        public static final int ic_action_stop=0x7f020006;
+        public static final int ic_launcher=0x7f020007;
     }
     public static final class id {
-        public static final int action_settings=0x7f090002;
+        public static final int action_settings=0x7f090006;
+        public static final int buttonFastForward=0x7f090004;
         public static final int buttonPlayPause=0x7f090001;
+        public static final int buttonReplay=0x7f090005;
+        public static final int buttonRewind=0x7f090003;
+        public static final int buttonStop=0x7f090002;
         public static final int container=0x7f090000;
     }
     public static final class layout {
@@ -47,6 +56,7 @@ public final class R {
         public static final int buttonFastForwardContentDescription=0x7f060005;
         public static final int buttonPlayPauseContentDescription=0x7f060003;
         public static final int buttonRepeatContentDescription=0x7f060007;
+        public static final int buttonReplayContentDescription=0x7f060008;
         public static final int buttonRewindContentDescription=0x7f060006;
         public static final int buttonStopContentDescription=0x7f060004;
         public static final int hello_world=0x7f060001;
