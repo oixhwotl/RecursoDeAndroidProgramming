@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Alarm And Vibrate</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="description">Demostración de los servicios del sistema\n Si se puede establecer un periodo de tiempo determinado para que la alarma AlarmManagerService, y enviará un mensaje de difusión después de ese tiempo. Cuando la aplicación recibe el mensaje, vibrará el dispositivo.</string>
+    <string name="button_text">Ajustar la Alarma</string>
+
+</resources>
