@@ -5,8 +5,8 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="15"
-        android:targetSdkVersion="18" />
+        android:minSdkVersion="14"
+        android:targetSdkVersion="19" />
 
     <application
         android:allowBackup="true"
@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.example.dosjuegos.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,12 +23,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.dosjuegos.JuegoPrimero"
-            android:label="@string/title_activity_juego_primero" >
+            android:name=".JuegoPrimeroActivity"
+            android:label="@string/title_activity_juego_primero" 
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.dosjuegos.MainActivity" />
         </activity>
         <activity
-            android:name="com.example.dosjuegos.JuegoSegundo"
-            android:label="@string/title_activity_juego_segundo" >
+            android:name=".JuegoSegundoActivity"
+            android:label="@string/title_activity_juego_segundo"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.dosjuegos.MainActivity" />
         </activity>
     </application>
 

@@ -1,55 +1,56 @@
 package com.example.dosjuegos;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
-public class MainActivity extends Activity
+public class JuegoSegundoActivity extends Activity
 {
-	Button mButton1, mButton2;
-	View.OnClickListener mButton1ClickListener = new View.OnClickListener()
-	{
-		@Override
-		public void onClick (View v)
-		{
-			Intent intent = new Intent(getApplication(), JuegoPrimeroActivity.class);
-			startActivity(intent);
-			
-		}
-	};
 	
-	View.OnClickListener mButton2ClickListener = new View.OnClickListener()
+	View.OnClickListener b=new View.OnClickListener()
 	{
+		
 		@Override
 		public void onClick (View v)
 		{
-			Intent intent = new Intent(getApplication(), JuegoSegundoActivity.class);
-			startActivity(intent);
+			if (v.getId()==R.id.button_numero1){
+				Toast.makeText(getApplication(), "correcto", Toast.LENGTH_SHORT).show();
+				
+			}
+			else
+			{
+				Toast.makeText(getApplication(), "incorrecto", Toast.LENGTH_SHORT).show();
+			}
 			
 		}
 	};
+	Button b1,b2,b3,b4;
 	
 	@Override
 	protected void onCreate (Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_juego_segundo);
+		b1=(Button)findViewById(R.id.button_numero1);
+		b2=(Button)findViewById(R.id.button_numero2);
+		b3=(Button)findViewById(R.id.button_numero3);
+		b4=(Button)findViewById(R.id.button_numero4);
+		b1.setOnClickListener(b);
+		b2.setOnClickListener(b);
+		b3.setOnClickListener(b);
+		b4.setOnClickListener(b);
 		
-		mButton1 = (Button)findViewById(R.id.buttonMain1);
-		mButton2 = (Button)findViewById(R.id.buttonMain2);
-		mButton1.setOnClickListener(mButton1ClickListener);
-		mButton2.setOnClickListener(mButton2ClickListener);
 	}
 	
 	@Override
 	public boolean onCreateOptionsMenu (Menu menu)
 	{
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.juego_segundo, menu);
 		return true;
 	}
 	

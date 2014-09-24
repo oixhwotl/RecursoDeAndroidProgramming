@@ -1,4 +1,4 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -6,26 +6,37 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" >
+    android:orientation="vertical"
+    tools:context="com.example.dosjuegos.MainActivity" >
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Por favor, eleje un juego" 
-        android:id="@+id/text_menu_description" />
-    
-    <Button
-        android:id="@+id/btn_goto_juego_primero"
+        android:textSize="32sp"
+        android:paddingBottom="20dp"
+        android:text="@string/main_title" />
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Goto Juego 1"
-        android:layout_below="@id/text_menu_description" />
-    
-    <Button
-        android:id="@+id/btn_goto_juego_segundo"
+        android:textSize="24sp"
+        android:paddingBottom="20dp"
+        android:text="@string/main_description" />
+        
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Goto Juego 2"
-        android:layout_below="@id/btn_goto_juego_primero" />
-
-</RelativeLayout>
+        android:orientation="horizontal" >
+        
+        <Button
+            android:id="@+id/buttonMain1"
+            android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/main_button_1" />
+        <Button
+            android:id="@+id/buttonMain2" 
+            android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="@string/main_button_2" />
+    </LinearLayout>
+       
+</LinearLayout>

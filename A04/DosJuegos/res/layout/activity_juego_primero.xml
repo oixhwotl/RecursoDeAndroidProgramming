@@ -6,11 +6,46 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".JuegoPrimero" >
+    tools:context="com.example.dosjuegos.JuegoPrimeroActivity" >
 
     <TextView
+        android:id="@+id/primero_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:textSize="32sp"
+        android:paddingBottom="20dp"
+        android:text="@string/primero_title" />
+ 
+    <TextView
+        android:layout_below="@id/primero_title"
+        android:id="@+id/primero_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:paddingBottom="20dp"
+        android:text="@string/primero_description" />
 
+    <EditText 
+        android:inputType="number"
+        android:layout_below="@id/primero_description"
+        android:paddingBottom="20dp"
+        android:id="@+id/edittext_numero"
+        android:layout_width="match_parent"
+        android:hint="Solo numero, por favor"
+        android:layout_height="wrap_content"/>
+    
+    <Button
+        android:layout_below="@id/edittext_numero"
+        android:paddingBottom="20dp"
+        android:id="@+id/button_numero"
+        android:text="Chequear el resultado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <TextView 
+        android:layout_below="@id/button_numero"
+        android:paddingBottom="20dp"
+        android:id="@+id/textview_numero"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+        
 </RelativeLayout>

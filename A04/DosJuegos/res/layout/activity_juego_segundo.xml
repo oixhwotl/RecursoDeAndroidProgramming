@@ -6,11 +6,56 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".JuegoSegundo" >
+    tools:context="com.example.dosjuegos.JuegoSegundoActivity" >
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/hello_world" />
+    <TextView
+        android:id="@+id/segundo_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="32sp"
+        android:paddingBottom="20dp"
+        android:text="@string/segundo_title" />
+    <EditText 
+        android:inputType="number"
+        android:layout_below="@id/segundo_title"
+        android:paddingBottom="20dp"
+        android:id="@+id/edittext_numero2"
+        android:layout_width="match_parent"
+        android:hint="Solo numero, por favor"
+        android:text="@string/edittext_numero2"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:layout_below="@id/edittext_numero2"
+        android:paddingBottom="20dp"
+        android:id="@+id/button_numero1"
+        android:text="1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:layout_below="@id/button_numero1"
+        android:paddingBottom="20dp"
+        android:id="@+id/button_numero2"
+        android:text="2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:layout_below="@id/button_numero2"
+        android:paddingBottom="20dp"
+        android:id="@+id/button_numero3"
+        android:text="3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:layout_below="@id/button_numero3"
+        android:paddingBottom="20dp"
+        android:id="@+id/button_numero4"
+        android:text="4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    
 
 </RelativeLayout>
