@@ -1,0 +1,62 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.decoraciondetexto.MainActivity" 
+    android:orientation="vertical"
+    >
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/edittext_text"
+        android:hint="texto"
+        android:layout_marginBottom="20dp"
+        />
+    <RadioGroup
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:id="@+id/radiogroup_color">
+        
+        <RadioButton android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/radiobutton_rojo"
+        android:text="Rojo" />
+        <RadioButton android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/radiobutton_azul"
+        android:text="Azul" />
+        <RadioButton android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/radiobutton_negro"
+        android:checked="true"
+        android:text="Negro" />
+       
+    </RadioGroup>
+    <CheckBox 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/checkbox_negrita"
+        android:text="Negrita"
+        android:layout_marginBottom="20dp"
+        />
+    <Button 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button1"
+        android:text="Pintar"
+        android:layout_marginBottom="20dp"
+        />
+    <TextView 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textview1"
+        android:text="Mensaje"
+        />
+
+</LinearLayout>
