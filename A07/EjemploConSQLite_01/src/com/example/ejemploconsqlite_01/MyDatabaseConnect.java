@@ -74,30 +74,6 @@ public class MyDatabaseConnect
 			mDatabase
 					.insert(MySQLiteOpenHelper.TABLE_NAME, null, contentValues);
 		
-		String whereClause = "rowid = " + rowId;
-		
-		Cursor cursor = mDatabase.query(MySQLiteOpenHelper.TABLE_NAME,
-				mAllColumns, whereClause, null, null, null, null);
-		
-		boolean isMovedToFirst = cursor.moveToFirst();
-		if (isMovedToFirst == false)
-		{
-			return (int) rowId;
-		}
-		
-		while (!cursor.isAfterLast())
-		{
-			ContentValues contentValuesA = new ContentValues();
-			DatabaseUtils.cursorRowToContentValues(cursor, contentValuesA);
-			
-			MyWord myWord = MyWord.getInstanceFromContentValues(contentValuesA);
-			rowId = myWord._id;
-			
-			cursor.moveToNext();
-		}
-		
-		cursor.close();
-		
 		return (int) rowId;
 	}
 	
