@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+
+<title>Eventos</title>
+
+<script src="cordova-2.4.0.js"></script>
+<script>
+	document.addEventListener("deviceready", function() {
+			document.addEventListener("pause", function() {
+			}, false);
+			
+			document.addEventListener("resume", function() {
+			}, false);
+			
+			document.addEventListener("online", function() {
+			}, false);
+			
+			document.addEventListener("offline", function() {
+			}, false);
+			
+			// backbutton, menubutton,
+			// startcallbutton, endcallbutton, 
+			// volumeupbutton, volumedownbutton
+		}, false);
+		
+</script>
+
+</head>
+
+<body>
+
+</body>
+
+</html>

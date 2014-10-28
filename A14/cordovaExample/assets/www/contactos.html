@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+
+<title>Contactos</title>
+
+<script src="cordova-2.4.0.js"></script>
+<script>
+	document.addEventListener("deviceready", function() {
+		document.getElementById("btnAgregar").addEventListener("click", function() {
+		
+			// grabamos un contacto
+			var contacto = navigator.contacts.create();
+			contacto.displayName = "video2brain";
+			
+			contacto.name = new ContactName();
+			contacto.name.givenName = "video";
+			contacto.name.familyName = "2brain";
+			
+			contacto.phoneNumbers = [];
+			contacto.phoneNumbers[0] = new ContactField("home", "222-444-55", true);
+			
+			contacto.save(function() {
+				alert("OK");
+			}, function () {
+				alert("ERROR");
+			});
+			
+		}, false);
+		
+		document.getElementById("buttonLeerContactos").addEventListener(click, function() {
+			navigator.contacts.find(["displayName"]) // or *
+			, function(contactos) {
+				for (Var i = 0; i < contactos.length; i++) {
+					var contacto = contactos[i];
+					alert(contacto.displayName);
+				}
+			}, function() {
+			});
+		}, false);
+		
+	}, false);
+	
+	
+	
+</script>
+
+</head>
+
+<body>
+
+</body>
+
+</html>

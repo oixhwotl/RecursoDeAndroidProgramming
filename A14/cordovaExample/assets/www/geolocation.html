@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+
+<title>Geolocation</title>
+
+<script src="cordova-2.4.0.js"></script>
+<script>
+	document.addEventListener("deviceready", function() {
+		navigator.geolocation.getCurrentPosition(function(pos){
+			alert("Se te ha ubicado en " + pos.coords.latitude + " y " + pos.coords.longitude);
+		}, function() {
+			alert("No se ha podido ubicar a tu dispositivo");
+		});
+		
+		navigator.compass.watchHeading(function(pos) {
+			alert(pos.magneticHeading);
+		}, function() {
+			alert("No se ha podido leer la brújula");
+		});
+		
+	}, false);
+	
+	
+</script>
+
+</head>
+
+<body>
+
+</body>
+
+</html>

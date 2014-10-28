@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+
+<title>Notification</title>
+
+<script src="cordova-2.4.0.js"></script>
+<script>
+	document.addEventListener("deviceready", function() {
+		// reproducir un beep
+		navigator.notification.beep(2);
+		
+		// vibrar el equipo
+		navigator.notification.vibrate(400);
+		
+		alert("Esto es una alerta");
+		// mensaje de alerta
+		navigator.notification.alert("Este es un mensaje", function() {
+		}, "Milaplicación", "Aceptar");
+		
+		// Pregunta de confirmación
+		navigator.notification.confirm("¿Desea eliminar?", function(button) {
+			if (button == 1) {
+			}
+		}, "Eliminar Contactos", "Si, No");
+	}, false);
+	
+	
+</script>
+
+</head>
+
+<body>
+
+</body>
+
+</html>
