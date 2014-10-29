@@ -20,7 +20,7 @@ public class MainActivity extends Activity
 	int mNotificationCount = 0;
 	
 	EditText mEditTextSubject, mEditTextBody;
-	Button mButtonNotify, mButtonUpdate, mButtonCancel;
+	Button mButtonNotify, mButtonCancel;
 	
 	View.OnClickListener mButtonNotifyClickListener =
 		new View.OnClickListener()

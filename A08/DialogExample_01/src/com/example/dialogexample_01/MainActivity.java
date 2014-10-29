@@ -84,20 +84,22 @@ public class MainActivity extends Activity
 				(ImageView) dialog.findViewById(R.id.dialog_imageview);
 			image.setImageResource(R.drawable.ic_launcher);
 			
+			Button declineButton =
+					(Button) dialog.findViewById(R.id.dialog_button);
+				// if decline button is clicked, close the custom dialog
+				declineButton.setOnClickListener(new View.OnClickListener()
+				{
+					@Override
+					public void onClick (View v)
+					{
+						// Close dialog
+						dialog.dismiss();
+					}
+				});
+
+			// call show()
 			dialog.show();
 			
-			Button declineButton =
-				(Button) dialog.findViewById(R.id.dialog_button);
-			// if decline button is clicked, close the custom dialog
-			declineButton.setOnClickListener(new View.OnClickListener()
-			{
-				@Override
-				public void onClick (View v)
-				{
-					// Close dialog
-					dialog.dismiss();
-				}
-			});
 			
 		}
 	};
