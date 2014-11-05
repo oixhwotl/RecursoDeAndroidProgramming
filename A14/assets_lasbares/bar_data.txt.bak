@@ -1,0 +1,101 @@
+{
+"bars":[
+{ 
+"name":"Santa Carmela Patio Bar", 
+"location":{ "long":13.675733", "lat":"-89.290123"},
+"address":"1 Calle Poniente, Entre 3 y 5 Ave. Norte | Paseo El Carmen, Santa Tecla 00503, El Salvador",
+"phone":"+503 7859 0801",
+"promotion":"10% descount"
+},
+
+{
+"name":"Las Camelias Lounge",
+"location":{"long":"13.675427", "lat":"-89.288574"},
+"address":"1a, Calle Oriente No 1-2,  Paseo El Carmen, Santa Tecla 22339, El Salvador",
+"phone":"+503 2229 0737"
+},
+
+{
+"name":"Caracol Bistro-Bar",
+"location":{ "long":"13.675149", "lat":"-89.284946"},
+"address":"1a Calle Oriente No. 3-8A | Paseo El Carmen, Santa Tecla 1501, El Salvador",
+"phone":"+503 7730 6502"
+},
+
+{
+"name":"Lima Limon",
+"location":{ "long":13.675359", "lat":"-89.285515"},
+"address":"1A Calle Ote 3-6 | Paseo El Carmen, Santa Tecla, El Salvador",
+"phone":"7069-6252",
+"promotion":"2nd beer half price"
+},
+
+{
+"name":"Miyagi's Sushi and More",
+"location":{ "long":13.672613", "lat":"-89.277123"},
+"address":"Jardines de Cuscatlan Calle L7 #17, Santa Tecla, El Salvador"
+},
+
+{
+"name":"Yemaya",
+"location":{ "long":13.676077", "lat":"-89.287626"},
+"address":"Av. Manuel Gallardo #2-8, Santa Tecla, El Salvador",
+"phone":"2288 4095",
+"promotion":"2 beers for $1"
+},
+
+{
+"name":"CHICHARRONERIA PORKYS",
+"location":{ "long":13.682002", "lat":"-89.276569"},
+"address":"MERLIOT, SANTA TECLA | EL SALVADOR, Santa Tecla, El Salvador"
+},
+
+{
+"name":"La Vinoteca",
+"location":{ "long":13.675330", "lat":"-89.283566"},
+"address":"7a Avenida Norte, No.2-1A | Paseo El Carmen, Santa Tecla, El Salvador"
+},
+
+{
+"name":"Palermo Bistro & Pizza",
+"location":{ "long":13.681189", "lat":"-89.277890"},
+"address":"Merliot, Calle Cuyagualo No 26-L | La Libertad, Santa Tecla 00503, El Salvador",
+"phone":"+503 2519 5454",
+"promotion":"imported beers half price"
+},
+
+{
+"name":"Jaggers Bar",
+"location":{ "long":13.680062", "lat":"-89.276733"},
+"address":"17 Avenida Norte, Ciudad Merliot, santa tecla, El Salvador",
+"phone":"+503 22884650"
+},
+
+{
+"name":"Grove Bar La Trankila",
+"location":{ "long":13.679567", "lat":"-89.276768"},
+"address":"17 Avenida Norte, Santa Tecla, El Salvador"
+},
+
+{
+"name":"365 Sport Bar",
+"location":{ "long":13.675125", "lat":"-89.284160"},
+"address":"Paseo El Carmen 4-4, Santa Tecla, El Salvador",
+"phone":"+503 2229 3614"
+},
+
+{
+"name":"Blanco y Negro Cafe Bar",
+"location":{ "long":13.674186", "lat":"-89.283766"},
+"address":"Calle Jose Ciriaco Lopez, Santa Tecla, El Salvador",
+"phone":"2556 7833"
+},
+
+{
+"name":"Bambas, Bar y Restaurante",
+"location":{ "long":13.675375", "lat":"-89.286540"},
+"address":"Paseo El Carmen, Santa Tecla, El Salvador"
+}
+]
+
+}
