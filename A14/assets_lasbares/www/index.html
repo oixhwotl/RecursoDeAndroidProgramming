@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="msapplication-tap-highlight" content="no" />
+<!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. 
+        	See https://issues.apache.org/jira/browse/CB-4323 -->
+<meta name="viewport"
+	content="user-scalable=no, initial-scale=1, 
+        	maximum-scale=1, minimum-scale=1, 
+        	width=device-width, height=device-height, 
+        		target-densitydpi=medium-dpi" />
+        	
+<link rel="shortcut icon" href="icon.png">
+
+<title>Bars near You</title>
+
+<link rel="stylesheet" type="text/css" href="css/jquery.mobile-1.4.4.css" />
+<link rel="stylesheet" type="text/css" href="css/index.css" />
+
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+
+<script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+<script type="text/javascript">
+	var deferredDeviceReady = $.Deferred();
+	var deferredJqueryMobileInit = $.Deferred();
+	$.when(deferredDeviceReady, deferredJqueryMobileInit).done(receivedAll);
+
+	$(document).bind('mobileinit', function () {
+		console.log('Received Event: "mobileinit"');
+		deferredJqueryMobileInit.resolve();
+	});
+	
+	document.addEventListener('deviceready', deviceReady, false);
+	function deviceReady() {
+		console.log('Received Event: "deviceready"');
+		
+		$("#deviceready > .listening").attr("style", "display:none");
+		$("#deviceready > .received").attr("style", "display:block");
+		
+		deferredDeviceReady.resolve();
+	};
+
+
+	function receivedAll() {
+		console.log('Received Event: all');
+		
+		updateAndRefreshUI();
+		
+		window.location.href = "#page1";
+	};
+	
+
+	var currentPosition;
+	// onSuccess Callback
+	//  This method accepts a `Position` object, which contains
+	//  the current GPS coordinates
+	//
+	var onGetCurrentPositionSuccess = function(position) {
+		alert('Latitude: '          + position.coords.latitude          + '\n' +
+			'Longitude: '         + position.coords.longitude         + '\n' +
+			'Altitude: '          + position.coords.altitude          + '\n' +
+			'Accuracy: '          + position.coords.accuracy          + '\n' +
+			'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '\n' +
+			'Heading: '           + position.coords.heading           + '\n' +
+			'Speed: '             + position.coords.speed             + '\n' +
+			'Timestamp: '         + position.timestamp                + '\n');
+		currentPosition = position;
+	};
+
+	//onError Callback receives a PositionError object
+	//
+	function onError(error) {
+   		alert('code: '    + error.code    + '\n' +
+        	'message: ' + error.message + '\n');
+	}
+	
+	var barList = [];
+	var barListMarkerInfo = [];
+	var barListList = [];
+	function updateAndRefreshUI() {
+		console.log('updateAndRefreshUI');
+		
+		// download and parse
+		//var data_url = "https://raw.githubusercontent.com/oixhwotl/RecursoDeAndroidProgramming/master/A14/assets_losbares/bar_data.json";
+		var data_url = "bar_data.json";
+		barList = [];
+		barListMarkerInfo = [];
+		barListList = [];
+		
+		$.getJSON( data_url, function( data ) {
+			console.log('getJSON()');
+			
+			$.each( data, function( key, val ) {
+				console.log(key);
+				console.log(val[0]['name']);
+				
+				barList = val;
+				//barList = $.parseJSON(val);
+				
+				$.each ( barList, function ( key2, val2 ) {
+					console.log(key2);
+					console.log(val2);
+					
+					var anObj = val2;
+					console.log(anObj['name']);
+					if(anObj['promotion']){
+						barListMarkerInfo.push ( [anObj['name'], anObj['location']['long'], anObj['location']['lat'], 1] );
+						
+						barListList.push ("<li><a href=\"#map-page\"><h2>" + anObj['name'] + 
+								"</h2><p><strong>" + anObj['promotion'] + "</strong></p>" +
+								"<p>" + anObj['address'] + "</p></a></li>"
+						);
+					} else {
+						barListMarkerInfo.push ( [anObj['name'], anObj['location']['long'], anObj['location']['lat'], 0] );
+						
+						barListList.push ("<li><a href=\"#map-page\"><h2>" + anObj['name'] + 
+								"</h2><p>" + anObj['address'] + "</p></a></li>"
+						);
+					}
+					
+				} );
+			});
+
+			// update list
+			$("#barlist").append(barListList.join(" "));
+		});
+	}
+	
+	/*
+	 * Google Maps documentation: http://code.google.com/apis/maps/documentation/javascript/basics.html
+	 * Geolocation documentation: http://dev.w3.org/geo/api/spec-source.html
+	 */
+	$( document ).on( "pagecreate", "#map-page", function() {
+	    var defaultLatLng = new google.maps.LatLng(34.0983425, -118.3267434);
+	    if ( navigator.geolocation ) {
+	        function success(pos) {
+	            // Location found, show map with these coordinates
+	            drawMap(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
+	        }
+	        function fail(error) {
+	            drawMap(defaultLatLng);  // Failed to find location, show default map
+	        }
+	        // Find the users current position.  Cache the location for 5 minutes, timeout after 6 seconds
+	        navigator.geolocation.getCurrentPosition(success, fail, {maximumAge: 500000, enableHighAccuracy:true, timeout: 6000});
+	    } else {
+	        drawMap(defaultLatLng);  // No geolocation support, show default map
+	    }
+	
+	    function drawMap(latlng) {
+	        var myOptions = {
+	            zoom: 14,
+	            center: latlng,
+	            mapTypeId: google.maps.MapTypeId.ROADMAP
+	        };
+	        var map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
+	        // Add an overlay to the map of current lat/lng
+	        setMarkers(map, barListMarkerInfo);
+	    }
+	});
+	
+	function setMarkers(map, locations) {
+		// Add markers to the map
+		console.log('setMarkers()');
+		for (var i = 0; i < locations.length; i++) {
+			var location = locations[i];
+			console.log(location[0]);
+			var myLatLng = new google.maps.LatLng(location[1], location[2]);
+		    var marker = new google.maps.Marker({
+		        position: myLatLng,
+		        map: map,
+		        title: location[0],
+		        zIndex: location[3]
+		    });
+		    var iw = new google.maps.InfoWindow({content: location[0]});
+		    google.maps.event.addListener(marker, "click", function (e) { iw.open(map, this); });
+		  }
+		}
+</script>
+        
+<script type="text/javascript" src="js/jquery.mobile-1.4.4.js"></script>
+<script type="text/javascript" src="cordova.js"></script>
+
+<style>
+#map-page, #map-canvas { width: 100%; height: 100%; padding: 0; }
+</style>
+
+</head>
+<body>
+<div data-role="page" id="splashscreen">
+	<div role="main" class="ui-content app">
+		<h1>PhoneGap and jQuery Mobile</h1>
+		<div id="deviceready" class="blink">
+			<p class="event listening">Connecting to Device</p>
+			<p class="event received">Device is Ready</p>
+			<script type="text/javascript" src="cordova.js"></script>
+			<script type="text/javascript" src="js/index.js"></script>
+			<script type="text/javascript">
+				setTimeout(function(){
+					console.log('calling receivedAll()');
+					receivedAll();
+					}, 3000
+				);
+			</script>
+		</div>
+	</div>
+</div>
+	
+<div data-role="page" id="page1">
+	<div data-role="header" data-theme="b">
+		<button class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-refresh" onclick="updateAndRefreshUI();">Refresh</button>
+		<h1>Bars</h1>
+		<a href="#map-page" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-location">Map</a>
+	</div>
+	
+	<div role="main" class="ui-content">
+		<ul data-role="listview" data-inset="true" id="barlist">
+			
+		</ul>
+	</div>
+</div>
+
+<div data-role="page" id="map-page" data-url="map-page">
+    <div data-role="header" data-theme="a">
+		<a href="#page1" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-back">List</a>
+		<h1>Maps</h1>
+	</div>
+    <div role="main" class="ui-content" id="map-canvas">
+        <!-- map loads here... -->
+    </div>
+</div>
+
+</body>
+</html>
