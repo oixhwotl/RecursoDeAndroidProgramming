@@ -1,144 +1,144 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8" />
-<meta name="format-detection" content="telephone=no" />
-<meta name="msapplication-tap-highlight" content="no" />
-<!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. 
-        	See https://issues.apache.org/jira/browse/CB-4323 -->
-<meta name="viewport"
-	content="user-scalable=no, initial-scale=1.0, 
-        	maximum-scale=1.0, minimum-scale=1.0,
-        	width=device-width, height=device-height, 
-        	target-densitydpi=medium-dpi" />
-        	
-<link rel="shortcut icon" href="icon.png">
-
-<title>Hello World! jQuery Mobile</title>
-
-<link rel="stylesheet" type="text/css" href="css/jquery.mobile-1.4.4.css" />
-<link rel="stylesheet" type="text/css" href="css/index.css" />
-
-<script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
-<script type="text/javascript">
-	var deferredDeviceReady = $.Deferred();
-	var deferredJqueryMobileInit = $.Deferred();
-	$.when(deferredDeviceReady, deferredJqueryMobileInit).done(receivedAll);
-
-	$(document).bind('mobileinit', function () {
-		console.log('Received Event: "mobileinit"');
-		deferredJqueryMobileInit.resolve();
-	});
-	
-	document.addEventListener('deviceready', deviceReady, false);
-	function deviceReady() {
-		console.log('Received Event: "deviceready"');
-		
-		$("#deviceready > .listening").attr("style", "display:none");
-		$("#deviceready > .received").attr("style", "display:block");
-		
-		deferredDeviceReady.resolve();
-	};
-
-	var pictureSource;   // picture source
-	var destinationType; // sets the format of returned value 
-	
-	function receivedAll() {
-		console.log('Received Event: all');
-		
-		pictureSource = navigator.camera.PictureSourceType;
-		destinationType = navigator.camera.DestinationType;
-
-		window.location.href = "#page1";
-	};
-	
-	function onPhotoDataSuccess(imageData) {
-		console.log('onPhotoDataSuccess ' + imageData);
-		$("#smallImage").attr("style", "display:block");
-		//$("#smallImage").attr("src", "data:image/jpeg;base64," + imageData);
-		$("#smallImage").attr("src", imageData);
-	}
+  <head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. 
+         See https://issues.apache.org/jira/browse/CB-4323 -->
+    <meta name="viewport"
+	  content="user-scalable=no, initial-scale=1.0, 
+        	   maximum-scale=1.0, minimum-scale=1.0,
+        	   width=device-width, height=device-height, 
+        	   target-densitydpi=medium-dpi" />
     
-    function onPhotoFileSuccess(imageFile) {
-		console.log('onPhotoFileSuccess ' + imageFile);
-		console.log(JSON.stringify(imageFile));
-      
-		$("#smallImage").attr("style", "display:block");
-		$("#smallImage").attr("src", imageFile);
-	}
+    <link rel="shortcut icon" href="icon.png">
 
-    function onPhotoURISuccess(imageURI) {
+    <title>Hello World! jQuery Mobile</title>
+
+    <link rel="stylesheet" type="text/css" href="css/jquery.mobile-1.4.4.css" />
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+
+    <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript">
+      var deferredDeviceReady = $.Deferred();
+      var deferredJqueryMobileInit = $.Deferred();
+      $.when(deferredDeviceReady, deferredJqueryMobileInit).done(receivedAll);
+
+      $(document).bind('mobileinit', function () {
+      console.log('Received Event: "mobileinit"');
+      deferredJqueryMobileInit.resolve();
+      });
+      
+      document.addEventListener('deviceready', deviceReady, false);
+      function deviceReady() {
+      console.log('Received Event: "deviceready"');
+      
+      $("#deviceready > .listening").attr("style", "display:none");
+      $("#deviceready > .received").attr("style", "display:block");
+      
+      deferredDeviceReady.resolve();
+      };
+
+      var pictureSource;   // picture source
+      var destinationType; // sets the format of returned value 
+      
+      function receivedAll() {
+      console.log('Received Event: all');
+      
+      pictureSource = navigator.camera.PictureSourceType;
+      destinationType = navigator.camera.DestinationType;
+
+      window.location.href = "#page1";
+      };
+      
+      function onPhotoDataSuccess(imageData) {
+      console.log('onPhotoDataSuccess ' + imageData);
+      $("#smallImage").attr("style", "display:block");
+      //$("#smallImage").attr("src", "data:image/jpeg;base64," + imageData);
+      $("#smallImage").attr("src", "data:image/jpeg;base64," + imageData);
+      }
+      
+      function onPhotoFileSuccess(imageFile) {
+      console.log('onPhotoFileSuccess ' + imageFile);
+      console.log(JSON.stringify(imageFile));
+      
+      $("#smallImage").attr("style", "display:block");
+      $("#smallImage").attr("src", imageFile);
+      }
+
+      function onPhotoURISuccess(imageURI) {
       console.log('onPhotoURISuccess ' + imageURI);
       console.log(imageURI);
 
       $("#largeImage").attr("style", "display:block");
       $("#largeImage").attr("src", imageURI);
-    }
+      }
 
-    function takePictureAsData() {
-    	console.log('capturePhotoWithData()');
-		// Take picture using device camera and retrieve image as base64-encoded string
-		navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50 });
-    }
+      function takePictureAsData() {
+      console.log('capturePhotoWithData()');
+      // Take picture using device camera and retrieve image as base64-encoded string
+      navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50, destinationType:Camera.DestinationType.DATA_URL });
+      }
 
-    function takePictureAsFile() {
-    	console.log('capturePhotoWithFile');
-		navigator.camera.getPicture(onPhotoFileSuccess, onFail, 
-				{ quality: 50, destinationType: Camera.DestinationType.FILE_URI });
-    }
+      function takePictureAsFile() {
+      console.log('capturePhotoWithFile');
+      navigator.camera.getPicture(onPhotoFileSuccess, onFail, 
+      { quality: 50, destinationType: Camera.DestinationType.FILE_URI });
+      }
+      
+      function getPicture(source) {
+      console.log('capturePhoto ' + source);
+      // Retrieve image file location from specified source
+      navigator.camera.getPicture(onPhotoURISuccess, onFail, 
+      { quality: 50, destinationType: Camera.DestinationType.FILE_URI, 
+      sourceType: source });
+      }
+
+      // Called if something bad happens.
+      function onFail(message) {
+      alert('Failed because: ' + message);
+      }
+    </script>
     
-	function getPicture(source) {
-		console.log('capturePhoto ' + source);
-		// Retrieve image file location from specified source
-		navigator.camera.getPicture(onPhotoURISuccess, onFail, 
-				{ quality: 50, destinationType: destinationType.FILE_URI, 
-			sourceType: source });
-    }
+    <script type="text/javascript" src="js/jquery.mobile-1.4.4.js"></script>
+    <script type="text/javascript" src="cordova.js"></script>
 
-	// Called if something bad happens.
-	function onFail(message) {
-		alert('Failed because: ' + message);
-	}
-</script>
-        
-<script type="text/javascript" src="js/jquery.mobile-1.4.4.js"></script>
-<script type="text/javascript" src="cordova.js"></script>
-
-<script type="text/javascript">
+    <script type="text/javascript">
 
 
-</script>
+    </script>
 
-</head>
-<body>
-<div data-role="page" id="splashscreen1">
-	<div role="main" class="ui-content app">
-		<h1>PhoneGap</h1>
-		<div id="deviceready" class="blink">
-			<p class="event listening">Connecting to Device</p>
-			<p class="event received">Device is Ready</p>
-		</div>
+  </head>
+  <body>
+    <div data-role="page" id="splashscreen1">
+      <div role="main" class="ui-content app">
+	<h1>PhoneGap</h1>
+	<div id="deviceready" class="blink">
+	  <p class="event listening">Connecting to Device</p>
+	  <p class="event received">Device is Ready</p>
 	</div>
-</div>
-	
-<div data-role="page" id="page1" data-theme="b">
-	<div data-role="header">
-		<h1>Camera App Example</h1>
-	</div>
-	<div role="main" class="ui-content">
-		<button class="ui-btn ui-shadow ui-corner-all" onclick="takePictureAsData();">
-			Take a Picture as an Image Data</button>
+      </div>
+    </div>
+    
+    <div data-role="page" id="page1" data-theme="b">
+      <div data-role="header">
+	<h1>Camera App Example</h1>
+      </div>
+      <div role="main" class="ui-content">
+	<button class="ui-btn ui-shadow ui-corner-all" onclick="takePictureAsData();">
+	  Take a Picture as an Image Data</button>
     	<button class="ui-btn ui-shadow ui-corner-all" onclick="takePictureAsFile();">
-    		Take a Picture as an Image File</button>
-    	<button class="ui-btn ui-shadow ui-corner-all" onclick="getPicture(pictureSource.PHOTOLIBRARY);">
-    		From Photo Library</button>
-    	<button class="ui-btn ui-shadow ui-corner-all" onclick="getPicture(pictureSource.SAVEDPHOTOALBUM);">
-    		From Photo Album</button>
+    	  Take a Picture as an Image File</button>
+    	<button class="ui-btn ui-shadow ui-corner-all" onclick="getPicture(Camera.PictureSourceType.PHOTOLIBRARY);">
+    	  From Photo Library</button>
+    	<button class="ui-btn ui-shadow ui-corner-all" onclick="getPicture(Camera.PictureSourceType.SAVEDPHOTOALBUM);">
+    	  From Photo Album</button>
     	<img style="display:none;width:60px;height:60px;" id="smallImage" src="" />
     	<img style="display:none;" id="largeImage" src="" />
-	</div>
+      </div>
 
-</div>
+    </div>
 
-</body>
+  </body>
 </html>
