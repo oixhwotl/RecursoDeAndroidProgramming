@@ -7,8 +7,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -134,6 +132,7 @@ public class MusicListActivity extends Activity
 		}
 		while (cursor.moveToNext());
 		
+		cursor.close();
 		return;
 	}
 	
