@@ -2,11 +2,18 @@ package com.example.mymusicplayer1_01;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
+
+import com.example.mymusicplayer1_01.MusicPlayerActivity.UpdateTimeProgressAsyncTask;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -17,7 +24,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 public class MusicListActivity extends Activity
@@ -97,45 +106,6 @@ public class MusicListActivity extends Activity
 	private static final String SELECTION = MediaStore.Audio.Media.IS_MUSIC
 			+ " != 0";
 	
-	private void retrieveAudioFileListFromMediaStore ()
-	{
-		Log.v(TAG, "retrieveAudioFileListFromMediaStore");
-		
-		// http://developer.android.com/reference/android/provider/MediaStore.Audio.Media.html
-		Cursor cursor = getContentResolver().query(
-				MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, PROJECTION,
-				SELECTION, null, null);
-		if (cursor.getCount() == 0)
-		{
-			return;
-		}
-		cursor.moveToFirst();
-		
-		Log.v(TAG, "... cursor.getCount()" + cursor.getCount());
-		
-		mFileList = new ArrayList<HashMap<String, String>>();
-		do
-		{
-			HashMap<String, String> hashMap = new HashMap<String, String>();
-			for (int i = 0; i < PROJECTION.length; i++)
-			{
-				String key = PROJECTION[i];
-				String value = cursor.getString(cursor.getColumnIndex(key));
-				hashMap.put(key, value);
-			}
-			mFileList.add(hashMap);
-			Log.v(TAG, "... ID:" + hashMap.get(PROJECTION[PROJECTION_ID]) + " "
-					+ "TITLE:"
-					+ hashMap.get(PROJECTION[PROJECTION_TITLE]) + " "
-					+ "DISPLAY_NAME:"
-					+ hashMap.get(PROJECTION[PROJECTION_DISPLAY_NAME]));
-		}
-		while (cursor.moveToNext());
-		
-		cursor.close();
-		return;
-	}
-	
 	@Override
 	protected void onCreate (Bundle savedInstanceState)
 	{
@@ -143,12 +113,9 @@ public class MusicListActivity extends Activity
 		setContentView(R.layout.activity_music_list);
 		
 		mListView = (ListView) findViewById(R.id.list_listview_musiclist);
-		
-		retrieveAudioFileListFromMediaStore();
-		MusicListArrayAdapter arrayAdapter = new MusicListArrayAdapter(this,
-				mFileList);
-		mListView.setAdapter(arrayAdapter);
 		mListView.setOnItemClickListener(mOnItemClickListener);
+		
+		createLoadMusicListAsyncTask(null);
 	}
 	
 	public class MusicListArrayAdapter extends
@@ -229,6 +196,9 @@ public class MusicListActivity extends Activity
 	{
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.music_list, menu);
+		
+		initializeSearchAlertDialog();
+		
 		return true;
 	}
 	
@@ -249,6 +219,164 @@ public class MusicListActivity extends Activity
 			Intent intent = new Intent(this, MusicPreferenceActivity.class);
 			startActivity(intent);
 		}
+		else if (id == R.id.action_search)
+		{
+			mSearchAlertDialog.show();
+		}
+		
 		return super.onOptionsItemSelected(item);
+	}
+	
+	private LoadMusicListAsyncTask mLoadMusicListAsyncTask;
+	
+	private void createLoadMusicListAsyncTask (String aWhereData)
+	{
+		if (mLoadMusicListAsyncTask == null)
+		{
+			cancelLoadMusicListAsyncTask();
+		}
+		Log.v(TAG, "createLoadMusicListAsyncTask");
+		mLoadMusicListAsyncTask = new LoadMusicListAsyncTask();
+		mLoadMusicListAsyncTask.execute(aWhereData);
+	}
+	
+	private void cancelLoadMusicListAsyncTask ()
+	{
+		if (mLoadMusicListAsyncTask != null)
+		{
+			Log.v(TAG, "cancelLoadMusicListAsyncTask");
+			mLoadMusicListAsyncTask.cancel(true);
+			mLoadMusicListAsyncTask = null;
+		}
+	}
+	
+	private class LoadMusicListAsyncTask extends
+			AsyncTask<String, Void, Cursor>
+	{
+		private static final String TAG = "LoadMusicFilesAsyncTask";
+		
+		@Override
+		protected Cursor doInBackground (String... args)
+		{
+			String selectionFinal = SELECTION;
+			Log.v(TAG, "doInBackground() " + args.length);
+			
+			if ((args.length > 0) && (args[0] != null))
+			{
+				String whereData = args[0];
+				Log.v(TAG, "... where with " + whereData);
+				String additionalWhereClause =
+					" \"" + MediaStore.Audio.Media.TITLE + "\" LIKE '"
+							+ whereData + "%' OR " +
+							" \"" + MediaStore.Audio.Media.ARTIST + "\" LIKE '"
+							+ whereData + "%' OR " +
+							" \"" + MediaStore.Audio.Media.DISPLAY_NAME
+							+ "\" LIKE '" + whereData + "^'";
+				
+				selectionFinal = String.format(Locale.getDefault(),
+						"%s AND (%s) ", SELECTION, additionalWhereClause);
+			}
+			
+			// http://developer.android.com/reference/android/provider/MediaStore.Audio.Media.html
+			Cursor cursor = getContentResolver().query(
+					MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, PROJECTION,
+					selectionFinal, null, null);
+			return cursor;
+		}
+		
+		@Override
+		protected void onPostExecute (Cursor cursor)
+		{
+			Log.v(TAG, "onPostExecute()");
+			Log.v(TAG, "... cursor.getCount()" + cursor.getCount());
+			
+			mFileList = new ArrayList<HashMap<String, String>>();
+			if (cursor.getCount() > 0)
+			{
+				cursor.moveToFirst();
+				do
+				{
+					HashMap<String, String> hashMap =
+						new HashMap<String, String>();
+					for (int i = 0; i < PROJECTION.length; i++)
+					{
+						String key = PROJECTION[i];
+						String value =
+							cursor.getString(cursor.getColumnIndex(key));
+						hashMap.put(key, value);
+					}
+					mFileList.add(hashMap);
+					Log.v(TAG,
+							"... ID:"
+									+ hashMap.get(PROJECTION[PROJECTION_ID])
+									+ " "
+									+ "TITLE:"
+									+ hashMap.get(PROJECTION[PROJECTION_TITLE])
+									+ " "
+									+ "DISPLAY_NAME:"
+									+ hashMap
+											.get(PROJECTION[PROJECTION_DISPLAY_NAME]));
+				}
+				while (cursor.moveToNext());
+			}
+			
+			cursor.close();
+			
+			MusicListArrayAdapter arrayAdapter =
+				new MusicListArrayAdapter(MusicListActivity.this,
+						mFileList);
+			mListView.setAdapter(arrayAdapter);
+			
+		}
+		
+	}
+	
+	private AlertDialog mSearchAlertDialog;
+	private EditText mSearchAlertDialogEditText;
+	
+	private void initializeSearchAlertDialog ()
+	{
+		Log.v(TAG, "initializeSearchAlertDialog()");
+		
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+		alert.setTitle("Search Music");
+		alert.setMessage("Input Search Text");
+		
+		mSearchAlertDialogEditText = new EditText(this);
+		alert.setView(mSearchAlertDialogEditText);
+		
+		alert.setPositiveButton(R.string.searchdialog_search,
+				new DialogInterface.OnClickListener()
+				{
+					public void onClick (DialogInterface dialog, int whichButton)
+					{
+						String result =
+							mSearchAlertDialogEditText.getText().toString();
+						Log.v(TAG, "... OK " + result);
+						
+						createLoadMusicListAsyncTask(result);
+					}
+				});
+		alert.setNegativeButton(R.string.searchdialog_cancel,
+				new DialogInterface.OnClickListener()
+				{
+					public void onClick (DialogInterface dialog, int whichButton)
+					{
+						Log.v(TAG, "... cancel ");
+						dialog.cancel();
+					}
+				});
+		alert.setNeutralButton(R.string.searchdialog_clear,
+				new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick (DialogInterface dialog, int which)
+					{
+						Log.v(TAG, "... clear ");
+						mSearchAlertDialogEditText.setText("");
+						createLoadMusicListAsyncTask(null);
+					}
+				});
+		mSearchAlertDialog = alert.create();
 	}
 }

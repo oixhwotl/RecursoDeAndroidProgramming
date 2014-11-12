@@ -10,7 +10,7 @@
         android:title="@string/action_search"/>
     <item
         android:id="@+id/action_player"
-        android:icon="@drawable/ic_action_play_light"
+        android:icon="@drawable/ic_action_slideshow"
         android:orderInCategory="100"
         android:showAsAction="ifRoom"
         android:title="@string/action_player"/>

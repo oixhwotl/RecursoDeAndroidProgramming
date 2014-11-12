@@ -37,9 +37,10 @@ public final class R {
         public static final int ic_action_rewind=0x7f020008;
         public static final int ic_action_search=0x7f020009;
         public static final int ic_action_settings=0x7f02000a;
-        public static final int ic_action_stop=0x7f02000b;
-        public static final int ic_action_view_as_list=0x7f02000c;
-        public static final int ic_launcher=0x7f02000d;
+        public static final int ic_action_slideshow=0x7f02000b;
+        public static final int ic_action_stop=0x7f02000c;
+        public static final int ic_action_view_as_list=0x7f02000d;
+        public static final int ic_launcher=0x7f02000e;
     }
     public static final class id {
         public static final int action_list=0x7f0b0014;
@@ -94,16 +95,21 @@ public final class R {
         public static final int player_rewind=0x7f07000e;
         public static final int player_stop=0x7f07000c;
         public static final int player_title=0x7f07000a;
-        public static final int pref_automatic_play_description=0x7f07001d;
-        public static final int pref_automatic_play_key=0x7f07001c;
-        public static final int pref_automatic_play_title=0x7f07001b;
-        public static final int pref_boolean_false=0x7f07001a;
-        public static final int pref_boolean_true=0x7f070019;
-        public static final int pref_dkip_second_default_value=0x7f070016;
-        public static final int pref_header_open_youtube=0x7f07001e;
-        public static final int pref_header_player=0x7f070015;
-        public static final int pref_skip_second_key=0x7f070018;
-        public static final int pref_skip_second_title=0x7f070017;
+        public static final int pref_automatic_play_description=0x7f070022;
+        public static final int pref_automatic_play_key=0x7f070021;
+        public static final int pref_automatic_play_title=0x7f070020;
+        public static final int pref_boolean_false=0x7f07001f;
+        public static final int pref_boolean_true=0x7f07001e;
+        public static final int pref_dkip_second_default_value=0x7f07001b;
+        public static final int pref_header_open_youtube=0x7f070023;
+        public static final int pref_header_player=0x7f07001a;
+        public static final int pref_skip_second_key=0x7f07001d;
+        public static final int pref_skip_second_title=0x7f07001c;
+        public static final int searchdialog_cancel=0x7f070018;
+        public static final int searchdialog_clear=0x7f070019;
+        public static final int searchdialog_message=0x7f070016;
+        public static final int searchdialog_search=0x7f070017;
+        public static final int searchdialog_title=0x7f070015;
         public static final int string_initial_time=0x7f070006;
         public static final int title_activity_music_list=0x7f070008;
         public static final int title_activity_music_player=0x7f070007;

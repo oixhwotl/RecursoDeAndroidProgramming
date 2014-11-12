@@ -22,5 +22,9 @@
     <string name="listitem_id">Id</string>
     <string name="listitem_duration">Duration</string>
     <string name="listitem_button_to_player">Button to PlayerActivity</string>
-
+    <string name="searchdialog_title">Search Music</string>
+    <string name="searchdialog_message">Input a word for search</string>
+	<string name="searchdialog_search">Search</string>
+	<string name="searchdialog_cancel">Cancel</string>
+	<string name="searchdialog_clear">Clear</string>
 </resources>
