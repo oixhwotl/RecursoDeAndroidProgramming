@@ -3,28 +3,20 @@ package com.example.mymusicplayer1_01;
 import java.util.Locale;
 
 import android.app.Activity;
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.audiofx.Equalizer;
-import android.media.audiofx.Visualizer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MusicPlayerActivity extends Activity implements
 		MediaPlayer.OnCompletionListener {
@@ -35,7 +27,6 @@ public class MusicPlayerActivity extends Activity implements
 	private boolean mMediaPlayerIsLooping;
 	private int mMediaPlayerTotalDuration;
 	private int mMediaPlayerCurrentPosition;
-	private int mMediaPlayerAudioSessionId;
 
 	private TextView mTextViewTitle, mTextViewTimeProgress, mTextViewTimeTotal;
 
@@ -58,16 +49,17 @@ public class MusicPlayerActivity extends Activity implements
 				if (mMediaPlayerIsPlaying) {
 					Log.v(TAG, "Pause clicked > Pause");
 					mMediaPlayer.pause();
-					updatePlayPauseButtonImage(false);
+					mMediaPlayerIsPlaying = false;
 
 					cancelUpdateTimeProgressAsyncTask();
 				} else {
 					Log.v(TAG, "Play clicked > Start");
 					mMediaPlayer.start();
-					updatePlayPauseButtonImage(false);
+					mMediaPlayerIsPlaying = true;
 
 					createUpdateTimeProgressAsyncTask();
 				}
+				updatePlayPauseButtonImage(true);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -92,19 +84,14 @@ public class MusicPlayerActivity extends Activity implements
 			try {
 				Log.v(TAG, "Stop clicked > Stop playing");
 				if (mMediaPlayerIsPlaying) {
-
 					mMediaPlayer.pause();
 					updatePlayPauseButtonImage(false);
-
 					cancelUpdateTimeProgressAsyncTask();
-
 				} else {
 					Log.v(TAG, "Stop clicked > Stop");
 				}
-
 				mMediaPlayer.seekTo(0);
 				updateTextViewTimeProgress(false);
-				updateSeekBar(true);
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -167,7 +154,6 @@ public class MusicPlayerActivity extends Activity implements
 					mMediaPlayer.start();
 				} else {
 					updateTextViewTimeProgress(false);
-					updateSeekBar(true);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -215,13 +201,11 @@ public class MusicPlayerActivity extends Activity implements
 			Log.v(TAG, "onCompletion()");
 			mMediaPlayer.start();
 			mMediaPlayer.pause();
-
+			
 			updatePlayPauseButtonImage(false);
 			cancelUpdateTimeProgressAsyncTask();
-
+			
 			updateTextViewTimeProgress(false);
-			updateSeekBar(true);
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -234,8 +218,6 @@ public class MusicPlayerActivity extends Activity implements
 
 			if (mMediaPlayer == null) {
 				mMediaPlayer = new MediaPlayer();
-				setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
 				mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 				Uri mediaFileUri = Uri.parse("android.resource://"
 						+ MusicPlayerActivity.this.getPackageName() + "/"
@@ -247,15 +229,10 @@ public class MusicPlayerActivity extends Activity implements
 				mMediaPlayer.prepare();
 				mMediaPlayer.start();
 				mMediaPlayer.pause();
-
-				mMediaPlayerAudioSessionId = mMediaPlayer.getAudioSessionId();
-				Log.d(TAG, "... audio session ID: "
-						+ mMediaPlayerAudioSessionId);
-
 			}
 
 			mMediaPlayerTotalDuration = mMediaPlayer.getDuration();
-			Log.v(TAG, "... getDuration " + mMediaPlayerTotalDuration);
+			Log.v(TAG, " ... getDuration " + mMediaPlayerTotalDuration);
 
 			mMediaPlayerIsPlaying = mMediaPlayer.isPlaying();
 			mMediaPlayerIsLooping = mMediaPlayer.isLooping();
@@ -264,7 +241,6 @@ public class MusicPlayerActivity extends Activity implements
 			mTextViewTimeTotal.setText(timeToString(mMediaPlayerTotalDuration));
 			mTextViewTitle.setText("Te Mando Flores");
 
-			Log.v(TAG, "... SeekBar setMax, setProgress");
 			mSeekBar.setMax(mMediaPlayerTotalDuration);
 			mSeekBar.setProgress(0);
 
@@ -275,23 +251,16 @@ public class MusicPlayerActivity extends Activity implements
 
 	private void updateMediaPlayerStatus() {
 		try {
-			Log.v(TAG, "updateMediaPlayerStatus()");
-
-			Log.v(TAG, "... getCurrentPosition, isPlaying, isLooping");
 			mMediaPlayerCurrentPosition = mMediaPlayer.getCurrentPosition();
 			mMediaPlayerIsPlaying = mMediaPlayer.isPlaying();
 			mMediaPlayerIsLooping = mMediaPlayer.isLooping();
 
-			Log.v(TAG, "... updateTextViewTimeProgress, updateSeekBar");
 			updateTextViewTimeProgress(true);
 			updateSeekBar(true);
 
-			Log.v(TAG,
-					"... updatePlayPauseButtonImage, updateReplayButtonImage");
 			updatePlayPauseButtonImage(true);
 			updateReplayButtonImage(true);
 
-			Log.v(TAG, "... asynctask");
 			if (mMediaPlayerIsPlaying) {
 				createUpdateTimeProgressAsyncTask();
 			} else {
@@ -321,8 +290,8 @@ public class MusicPlayerActivity extends Activity implements
 		}
 
 		// int[] ints = {hours , mins , secs};
-		// Log.v(TAG, "timeToString " + aSecond + " to " + hours + ":" + mins
-		// + ":" + secs);
+		//Log.v(TAG, "timeToString " + aSecond + " to " + hours + ":" + mins
+		//		+ ":" + secs);
 		return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours,
 				mins, secs);
 	}
@@ -330,14 +299,12 @@ public class MusicPlayerActivity extends Activity implements
 	@Override
 	protected void onPause() {
 		cancelUpdateTimeProgressAsyncTask();
-
 		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
 		updateMediaPlayerStatus();
-
 		super.onResume();
 	}
 
@@ -346,7 +313,6 @@ public class MusicPlayerActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_music_player);
 
-		Log.v(TAG, "onCreate()");
 		mTextViewTitle = (TextView) findViewById(R.id.textview_title);
 		mTextViewTimeProgress = (TextView) findViewById(R.id.textview_time_progress);
 		mTextViewTimeTotal = (TextView) findViewById(R.id.textview_time_total);
@@ -369,15 +335,9 @@ public class MusicPlayerActivity extends Activity implements
 		mSeekBar = (SeekBar) findViewById(R.id.seekbar_progress);
 		mSeekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
 
-		Log.v(TAG, "...initializeMediaPlayer, updateMediaPlayerStatus");
 		initializeMediaPlayer();
+
 		updateMediaPlayerStatus();
-
-		Log.v(TAG,
-				"... mLinearLayoutStub, setupVisualFxAndUI, setupEqualizerFxAndUI");
-		mLinearLayoutStub = (LinearLayout) findViewById(R.id.linearlayout_stub);
-
-		setupEqualizerFxAndUI();
 	}
 
 	@Override
@@ -386,8 +346,6 @@ public class MusicPlayerActivity extends Activity implements
 			try {
 				if (mMediaPlayer.isPlaying()) {
 					mMediaPlayer.stop();
-
-					cancelUpdateTimeProgressAsyncTask();
 				}
 			} catch (Exception e) {
 				// Do nothing
@@ -472,82 +430,5 @@ public class MusicPlayerActivity extends Activity implements
 			super.onProgressUpdate(values);
 		}
 
-	}
-
-	private Equalizer mEqualizer;
-	private LinearLayout mLinearLayoutStub;
-
-	private void setupEqualizerFxAndUI() {
-		// Create the Equalizer object (an AudioEffect subclass) and attach it
-		// to our media player,
-		// with a default priority (0).
-		mEqualizer = new Equalizer(0, mMediaPlayerAudioSessionId);
-		mEqualizer.setEnabled(true);
-
-		TextView eqTextView = new TextView(this);
-		eqTextView.setText("Equalizer:");
-		mLinearLayoutStub.addView(eqTextView);
-
-		short bands = mEqualizer.getNumberOfBands();
-
-		final short minEQLevel = mEqualizer.getBandLevelRange()[0];
-		final short maxEQLevel = mEqualizer.getBandLevelRange()[1];
-
-		for (short i = 0; i < bands; i++) {
-			final short band = i;
-
-			TextView freqTextView = new TextView(this);
-			freqTextView.setLayoutParams(new ViewGroup.LayoutParams(
-					ViewGroup.LayoutParams.MATCH_PARENT,
-					ViewGroup.LayoutParams.WRAP_CONTENT));
-			freqTextView.setGravity(Gravity.CENTER_HORIZONTAL);
-			freqTextView.setText((mEqualizer.getCenterFreq(band) / 1000)
-					+ " Hz");
-			mLinearLayoutStub.addView(freqTextView);
-
-			LinearLayout row = new LinearLayout(this);
-			row.setOrientation(LinearLayout.HORIZONTAL);
-
-			TextView minDbTextView = new TextView(this);
-			minDbTextView.setLayoutParams(new ViewGroup.LayoutParams(
-					ViewGroup.LayoutParams.WRAP_CONTENT,
-					ViewGroup.LayoutParams.WRAP_CONTENT));
-			minDbTextView.setText((minEQLevel / 100) + " dB");
-
-			TextView maxDbTextView = new TextView(this);
-			maxDbTextView.setLayoutParams(new ViewGroup.LayoutParams(
-					ViewGroup.LayoutParams.WRAP_CONTENT,
-					ViewGroup.LayoutParams.WRAP_CONTENT));
-			maxDbTextView.setText((maxEQLevel / 100) + " dB");
-
-			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-					ViewGroup.LayoutParams.MATCH_PARENT,
-					ViewGroup.LayoutParams.WRAP_CONTENT);
-			layoutParams.weight = 1;
-			SeekBar bar = new SeekBar(this);
-			bar.setLayoutParams(layoutParams);
-			bar.setMax(maxEQLevel - minEQLevel);
-			bar.setProgress(mEqualizer.getBandLevel(band));
-
-			bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-				public void onProgressChanged(SeekBar seekBar, int progress,
-						boolean fromUser) {
-					mEqualizer.setBandLevel(band,
-							(short) (progress + minEQLevel));
-				}
-
-				public void onStartTrackingTouch(SeekBar seekBar) {
-				}
-
-				public void onStopTrackingTouch(SeekBar seekBar) {
-				}
-			});
-
-			row.addView(minDbTextView);
-			row.addView(bar);
-			row.addView(maxDbTextView);
-
-			mLinearLayoutStub.addView(row);
-		}
 	}
 }
