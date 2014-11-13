@@ -3,18 +3,16 @@ package com.example.mymusicplayer1_01;
 import java.util.Locale;
 
 import android.app.Activity;
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.audiofx.Equalizer;
-import android.media.audiofx.Visualizer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -29,6 +27,12 @@ import android.widget.TextView;
 public class MusicPlayerActivity extends Activity implements
 		MediaPlayer.OnCompletionListener {
 	private static final String TAG = "MusicPlayerActivity";
+
+	public static final String ARGUMENT_PLAYER = "ARGUMENT_PLAYER";
+
+	private final Uri DEFAULT_MEDIAFILE_URI = Uri
+			.parse("android.resource://com.example.mymusicplayer1_01/"
+					+ R.raw.preview_temandoflores);
 
 	private MediaPlayer mMediaPlayer;
 	private boolean mMediaPlayerIsPlaying;
@@ -61,6 +65,7 @@ public class MusicPlayerActivity extends Activity implements
 					updatePlayPauseButtonImage(false);
 
 					cancelUpdateTimeProgressAsyncTask();
+
 				} else {
 					Log.v(TAG, "Play clicked > Start");
 					mMediaPlayer.start();
@@ -92,7 +97,7 @@ public class MusicPlayerActivity extends Activity implements
 			try {
 				Log.v(TAG, "Stop clicked > Stop playing");
 				if (mMediaPlayerIsPlaying) {
-
+					Log.v(TAG, "... MediaPlayer.pause()");
 					mMediaPlayer.pause();
 					updatePlayPauseButtonImage(false);
 
@@ -138,6 +143,15 @@ public class MusicPlayerActivity extends Activity implements
 		}
 	}
 
+	private SharedPreferences mSharedPreferences;
+	private boolean mAutomaticPlay = false;
+
+	private void updateAutomaticPlay() {
+		mAutomaticPlay = (boolean) mSharedPreferences.getBoolean(getResources()
+				.getString(R.string.pref_automatic_play_key), false);
+		Log.v(TAG, "updateAutomaticPlay() " + mAutomaticPlay);
+	}
+
 	private static final int DEFUALT_SKIP_UNIT = 5000;
 	private int mSkipUnit = DEFUALT_SKIP_UNIT;
 	private View.OnClickListener mButtonSkipClickListener = new View.OnClickListener() {
@@ -148,14 +162,14 @@ public class MusicPlayerActivity extends Activity implements
 				int playOffset = mMediaPlayer.getCurrentPosition();
 				int destOffset = 0;
 
-				if (v.getId() == R.id.button_fast_forward) {
+				if (v.getId() == R.id.player_button_fast_forward) {
 					destOffset = playOffset + mSkipUnit;
 					if (destOffset > mMediaPlayerTotalDuration) {
 						destOffset = mMediaPlayerTotalDuration;
 					}
 					Log.v(TAG, "Fast Forward clicked > Forwarding to "
 							+ destOffset);
-				} else { // v.getId() == R.id.button_rewind
+				} else { // v.getId() == R.id.player_button_rewind
 					destOffset = playOffset - mSkipUnit;
 					if (destOffset < 0) {
 						destOffset = 0;
@@ -214,6 +228,7 @@ public class MusicPlayerActivity extends Activity implements
 		try {
 			Log.v(TAG, "onCompletion()");
 			mMediaPlayer.start();
+			Log.v(TAG, "... MediaPlayer.pause()");
 			mMediaPlayer.pause();
 
 			updatePlayPauseButtonImage(false);
@@ -234,25 +249,24 @@ public class MusicPlayerActivity extends Activity implements
 
 			if (mMediaPlayer == null) {
 				mMediaPlayer = new MediaPlayer();
+
 				setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 				mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-				Uri mediaFileUri = Uri.parse("android.resource://"
-						+ MusicPlayerActivity.this.getPackageName() + "/"
-						+ R.raw.preview_temandoflores);
-				mMediaPlayer.setDataSource(MusicPlayerActivity.this,
-						mediaFileUri);
 				mMediaPlayer.setOnCompletionListener(this);
-				Log.v(TAG, "... prepare, start, pause");
-				mMediaPlayer.prepare();
-				mMediaPlayer.start();
-				mMediaPlayer.pause();
 
 				mMediaPlayerAudioSessionId = mMediaPlayer.getAudioSessionId();
 				Log.d(TAG, "... audio session ID: "
 						+ mMediaPlayerAudioSessionId);
-
 			}
+
+			Uri mediaFileUri = DEFAULT_MEDIAFILE_URI;
+			mMediaPlayer.setDataSource(MusicPlayerActivity.this, mediaFileUri);
+
+			Log.v(TAG, "... prepare, start, pause");
+			mMediaPlayer.prepare();
+			mMediaPlayer.start();
+			mMediaPlayer.pause();
 
 			mMediaPlayerTotalDuration = mMediaPlayer.getDuration();
 			Log.v(TAG, "... getDuration " + mMediaPlayerTotalDuration);
@@ -267,13 +281,69 @@ public class MusicPlayerActivity extends Activity implements
 			Log.v(TAG, "... SeekBar setMax, setProgress");
 			mSeekBar.setMax(mMediaPlayerTotalDuration);
 			mSeekBar.setProgress(0);
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void updateMediaPlayerStatus() {
+	private void changeMediaPlayer(Bundle aBundle) {
+		try {
+			String audioId = (String) aBundle
+					.getString(MediaStore.Audio.Media._ID);
+			String audioArtist = (String) aBundle
+					.getString(MediaStore.Audio.Media.ARTIST);
+			String audioTitle = (String) aBundle
+					.getString(MediaStore.Audio.Media.TITLE);
+			String audioData = (String) aBundle
+					.getString(MediaStore.Audio.Media.DATA);
+			String audioDisplayName = (String) aBundle
+					.getString(MediaStore.Audio.Media.DISPLAY_NAME);
+			String audioDuration = (String) aBundle
+					.getString(MediaStore.Audio.Media.DURATION);
+
+			Log.v(TAG, "changeMediaPlayer() " + audioDisplayName);
+
+			Log.v(TAG, "... mMediaPlayer.reset() ");
+			mMediaPlayer.reset();
+
+			Uri mediaUri = Uri.parse(audioData);
+			mMediaPlayer.setDataSource(MusicPlayerActivity.this, mediaUri);
+
+			Log.v(TAG, "... prepare(), start()");
+			mMediaPlayer.prepare();
+			mMediaPlayer.start();
+
+			updateAutomaticPlay();
+			if (mAutomaticPlay == false) {
+				Log.v(TAG, "... AutomaticPlay off --> pause()");
+				mMediaPlayer.pause();
+			} else {
+				Log.v(TAG, "... AutomaticPlay on");
+			}
+
+			mMediaPlayerTotalDuration = Integer.parseInt(audioDuration);
+			Log.v(TAG, "... getDuration " + mMediaPlayerTotalDuration);
+
+			if (mMediaPlayer.isLooping() == true) {
+				mMediaPlayer.setLooping(false);
+			}
+
+			mMediaPlayerIsPlaying = mMediaPlayer.isPlaying();
+			mMediaPlayerIsLooping = mMediaPlayer.isLooping();
+
+			mTextViewTimeProgress.setText(R.string.string_initial_time);
+			mTextViewTimeTotal.setText(timeToString(mMediaPlayerTotalDuration));
+			mTextViewTitle.setText(audioDisplayName);
+
+			Log.v(TAG, "... SeekBar setMax, setProgress");
+			mSeekBar.setMax(mMediaPlayerTotalDuration);
+			mSeekBar.setProgress(0);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void updateMediaPlayerUIStatus() {
 		try {
 			Log.v(TAG, "updateMediaPlayerStatus()");
 
@@ -281,6 +351,11 @@ public class MusicPlayerActivity extends Activity implements
 			mMediaPlayerCurrentPosition = mMediaPlayer.getCurrentPosition();
 			mMediaPlayerIsPlaying = mMediaPlayer.isPlaying();
 			mMediaPlayerIsLooping = mMediaPlayer.isLooping();
+
+			Log.v(TAG, "... update SkipUnit");
+			String tmp = mSharedPreferences.getString("pref_skip_second_key",
+					"5000");
+			mSkipUnit = Integer.parseInt(tmp);
 
 			Log.v(TAG, "... updateTextViewTimeProgress, updateSeekBar");
 			updateTextViewTimeProgress(true);
@@ -329,16 +404,43 @@ public class MusicPlayerActivity extends Activity implements
 
 	@Override
 	protected void onPause() {
+		Log.v(TAG, "onPause(), cancelUpdateTimeProgressAsyncTask()");
+
 		cancelUpdateTimeProgressAsyncTask();
 
 		super.onPause();
 	}
 
 	@Override
-	protected void onResume() {
-		updateMediaPlayerStatus();
+	protected void onNewIntent(Intent intent) {
+		Log.v(TAG, "onNewIntent()");
 
+		Bundle bundle = intent.getBundleExtra(ARGUMENT_PLAYER);
+		if (bundle != null) {
+			String audioDisplayName = (String) bundle
+					.getString(MediaStore.Audio.Media.DISPLAY_NAME);
+			Log.v(TAG, "... bundle DISPLAY_NAME:" + audioDisplayName);
+			String currentTitle = mTextViewTitle.getText().toString();
+			Log.v(TAG, "... title:" + currentTitle);
+
+			if (currentTitle.compareTo(audioDisplayName) != 0) {
+				if (mMediaPlayerIsPlaying == true) {
+					Log.v(TAG, "... MediaPlayer.pause()");
+					mMediaPlayer.pause();
+				}
+				changeMediaPlayer(bundle);
+			}
+		}
+
+		// updateMediaPlayerUIStatus();
+	}
+
+	@Override
+	protected void onResume() {
+		Log.v(TAG, "onResume()");
 		super.onResume();
+
+		updateMediaPlayerUIStatus();
 	}
 
 	@Override
@@ -347,35 +449,43 @@ public class MusicPlayerActivity extends Activity implements
 		setContentView(R.layout.activity_music_player);
 
 		Log.v(TAG, "onCreate()");
-		mTextViewTitle = (TextView) findViewById(R.id.textview_title);
-		mTextViewTimeProgress = (TextView) findViewById(R.id.textview_time_progress);
-		mTextViewTimeTotal = (TextView) findViewById(R.id.textview_time_total);
+		mTextViewTitle = (TextView) findViewById(R.id.player_textview_title);
+		mTextViewTimeProgress = (TextView) findViewById(R.id.player_textview_time_progress);
+		mTextViewTimeTotal = (TextView) findViewById(R.id.player_textview_time_total);
 
-		mButtonPlayPause = (ImageButton) findViewById(R.id.button_play_pause);
+		mButtonPlayPause = (ImageButton) findViewById(R.id.player_button_play_pause);
 		mButtonPlayPause.setOnClickListener(mButtonPlayPauseClickListener);
 
-		mButtonStop = (ImageButton) findViewById(R.id.button_stop);
+		mButtonStop = (ImageButton) findViewById(R.id.player_button_stop);
 		mButtonStop.setOnClickListener(mButtonStopClickListener);
 
-		mButtonFastForward = (ImageButton) findViewById(R.id.button_fast_forward);
+		mButtonFastForward = (ImageButton) findViewById(R.id.player_button_fast_forward);
 		mButtonFastForward.setOnClickListener(mButtonSkipClickListener);
 
-		mButtonRewind = (ImageButton) findViewById(R.id.button_rewind);
+		mButtonRewind = (ImageButton) findViewById(R.id.player_button_rewind);
 		mButtonRewind.setOnClickListener(mButtonSkipClickListener);
 
-		mButtonReplay = (ImageButton) findViewById(R.id.button_replay);
+		mButtonReplay = (ImageButton) findViewById(R.id.player_button_replay);
 		mButtonReplay.setOnClickListener(mButtonReplayClickListener);
 
-		mSeekBar = (SeekBar) findViewById(R.id.seekbar_progress);
+		mSeekBar = (SeekBar) findViewById(R.id.player_seekbar_progress);
 		mSeekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
 
 		Log.v(TAG, "...initializeMediaPlayer, updateMediaPlayerStatus");
+
+		mSharedPreferences = PreferenceManager
+				.getDefaultSharedPreferences(this);
+
 		initializeMediaPlayer();
-		updateMediaPlayerStatus();
+		Intent intent = getIntent();
+		if (intent != null) {
+			onNewIntent(intent);
+		}
+		updateMediaPlayerUIStatus();
 
 		Log.v(TAG,
 				"... mLinearLayoutStub, setupVisualFxAndUI, setupEqualizerFxAndUI");
-		mLinearLayoutStub = (LinearLayout) findViewById(R.id.linearlayout_stub);
+		mLinearLayoutStub = (LinearLayout) findViewById(R.id.player_linearlayout_stub);
 
 		setupEqualizerFxAndUI();
 	}
@@ -388,14 +498,23 @@ public class MusicPlayerActivity extends Activity implements
 					mMediaPlayer.stop();
 
 					cancelUpdateTimeProgressAsyncTask();
+					mMediaPlayer.release();
+					mMediaPlayer = null;
 				}
 			} catch (Exception e) {
-				// Do nothing
+				e.printStackTrace();
 			}
-			mMediaPlayer.release();
-			mMediaPlayer = null;
 		}
 		super.onDestroy();
+	}
+
+	@Override
+	public void onBackPressed() {
+		if (mMediaPlayerIsPlaying == false) {
+			super.onBackPressed();
+		} else {
+			moveTaskToBack(true);
+		}
 	}
 
 	@Override
@@ -411,8 +530,12 @@ public class MusicPlayerActivity extends Activity implements
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
+		if (id == R.id.action_list) {
+			Intent intent = new Intent(this, MusicListActivity.class);
+			startActivity(intent);
+		} else if (id == R.id.action_settings) {
+			Intent intent = new Intent(this, MusicPreferenceActivity.class);
+			startActivity(intent);
 		}
 		return super.onOptionsItemSelected(item);
 	}
