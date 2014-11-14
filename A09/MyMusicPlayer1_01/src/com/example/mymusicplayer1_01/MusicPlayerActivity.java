@@ -43,6 +43,7 @@ public class MusicPlayerActivity extends Activity implements
 	private MusicPlayerService mMediaPlayer;
 
 	private String mTitle;
+	private String mId;
 
 	private ServiceConnection mConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName aClassName, IBinder aBinder) {
@@ -59,6 +60,7 @@ public class MusicPlayerActivity extends Activity implements
 
 			if ((mMediaPlayer.isPlaying() == false) && (mBundle != null)) {
 				mMediaPlayer.setDataSource(mBundle);
+				mId = mMediaPlayer.getId();
 			}
 
 			updateUI();
@@ -338,6 +340,7 @@ public class MusicPlayerActivity extends Activity implements
 			mTitle = mMediaPlayer.getTitle();
 			mTextViewTitle.setText(mTitle);
 			setupEqualizerFxAndUI();
+			mId = mMediaPlayer.getId();
 
 			Log.v(TAG, "... getCurrentPosition, isPlaying, isLooping");
 			mCurrentPosition = mMediaPlayer.getCurrentPosition();
@@ -411,15 +414,15 @@ public class MusicPlayerActivity extends Activity implements
 			return;
 		}
 
-		String displayName = (String) bundle
-				.getString(MediaStore.Audio.Media.DISPLAY_NAME);
+		String id = (String) bundle.getString(MediaStore.Audio.Media._ID);
 		String title = (String) bundle.getString(MediaStore.Audio.Media.TITLE);
-		Log.v(TAG, "... bundle TITLE:" + title + " DISPLAYNAME:" + displayName);
+		Log.v(TAG, "... bundle TITLE:" + title + " ID:" + id);
+		if (mBound) {
+			mId = mMediaPlayer.getId();
+		}
+		Log.v(TAG, "... current ID:" + mId);
 
-		String currentTitle = mTextViewTitle.getText().toString();
-		Log.v(TAG, "... title:" + currentTitle);
-
-		if (currentTitle.compareTo(title) != 0) {
+		if ((mId == null) || (id.compareTo(mId) != 0)) {
 			mBundle = bundle;
 			if (mBound) {
 				if (mIsPlaying == true) {
@@ -428,6 +431,7 @@ public class MusicPlayerActivity extends Activity implements
 				}
 				Log.v(TAG, "... MediaPlayer.setDataSource()");
 				mMediaPlayer.setDataSource(mBundle);
+				mId = mMediaPlayer.getId();
 			}
 		}
 		updateUI();
@@ -440,6 +444,23 @@ public class MusicPlayerActivity extends Activity implements
 
 		if (!mBound) {
 			bindMusicPlayerService();
+		} else if (mBundle != null) {
+			String id = (String) mBundle.getString(MediaStore.Audio.Media._ID);
+			String title = (String) mBundle
+					.getString(MediaStore.Audio.Media.TITLE);
+			Log.v(TAG, "... bundle TITLE:" + title + " ID:" + id);
+			Log.v(TAG, "... current ID:" + mId);
+
+			mId = mMediaPlayer.getId();
+			if ((mId == null) || (id.compareTo(mId) != 0)) {
+				if (mIsPlaying == true) {
+					Log.v(TAG, "... MediaPlayer.pause()");
+					mMediaPlayer.pause();
+				}
+				Log.v(TAG, "... MediaPlayer.setDataSource()");
+				mMediaPlayer.setDataSource(mBundle);
+				mId = mMediaPlayer.getId();
+			}
 		}
 		updateUI();
 	}

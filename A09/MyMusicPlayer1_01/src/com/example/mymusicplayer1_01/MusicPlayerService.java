@@ -262,6 +262,10 @@ public class MusicPlayerService extends Service implements
 	public String getDisplayName() {
 		return mMediaDisplayName;
 	}
+	
+	public String getId() {
+		return mMediaId;
+	}
 
 	public void setLooping(boolean aEnableLooping) {
 		mMediaPlayer.setLooping(aEnableLooping);
