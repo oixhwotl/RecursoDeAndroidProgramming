@@ -1,7 +1,9 @@
 package com.example.mymusicplayer1_01;
 
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.TaskStackBuilder;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -17,6 +19,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -78,6 +81,7 @@ public class MusicPlayerService extends Service implements
 			}
 		}
 
+		cancelNotification();
 		if (mIsReceiverRegistered == true) {
 			unregisterBroadcastReceiver();
 		}
@@ -371,6 +375,7 @@ public class MusicPlayerService extends Service implements
 			mMediaPlayer.start();
 			mIsPlaying = true;
 			updateWidgets();
+			createNotification();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -554,26 +559,38 @@ public class MusicPlayerService extends Service implements
 		}
 	}
 
+	private NotificationManager mNotificationManager;
+	private int notificationID = 100;
+
 	private void createNotification() {
-		Notification notification = new Notification.Builder(getApplicationContext())
-	    // Show controls on lock screen even when user hides sensitive content.
-	    .setVisibility(Notification.VISIBILITY_PUBLIC)
-	    .setSmallIcon(R.drawable.ic_stat_player)
-	    // Add media control buttons that invoke intents in your media service
-	    .addAction(R.drawable.ic_action_rewind, "Previous", prevPendingIntent) // #0
-	    .addAction(R.drawable.ic_pause, "Pause", pausePendingIntent)  // #1
-	    .addAction(R.drawable.ic_next, "Next", nextPendingIntent)     // #2
-	    // Apply the media style template
-	    .setStyle(new Notification.MediaStyle()
-	    .setShowActionsInCompactView(1 /* #1: pause button */)
-	    .setMediaSession(mMediaSession.getSessionToken())
-	    .setContentTitle("Wonderful music")
-	    .setContentText("My Awesome Band")
-	    .setLargeIcon(albumArtBitmap)
-	    .build();
+		Log.i("Start", "notification");
+
+		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
+				mContext);
+
+		mBuilder.setContentTitle(mMediaTitle);
+		mBuilder.setContentText(mMediaArtist);
+		mBuilder.setTicker("Alert! " + mMediaTitle);
+		mBuilder.setSmallIcon(R.drawable.ic_action_play_light);
+
+		Intent intentToPlayer = new Intent(this, MusicPlayerActivity.class);
+		PendingIntent resultPendingIntent = PendingIntent.getActivity(mContext,
+				notificationID, intentToPlayer,
+				PendingIntent.FLAG_UPDATE_CURRENT);
+
+		mBuilder.setContentIntent(resultPendingIntent);
+
+		if (mNotificationManager == null) {
+			mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		}
+		/* notificationID allows you to update the notification later on. */
+		mNotificationManager.notify(notificationID, mBuilder.build());
 	}
 
-	private void deleteNotification() {
-
+	private void cancelNotification() {
+		Log.i("Cancel", "notification");
+		if (mNotificationManager != null) {
+			mNotificationManager.cancel(notificationID);
+		}
 	}
 }
