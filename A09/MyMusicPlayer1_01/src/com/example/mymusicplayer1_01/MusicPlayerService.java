@@ -1,8 +1,13 @@
 package com.example.mymusicplayer1_01;
 
+import android.app.PendingIntent;
 import android.app.Service;
+import android.appwidget.AppWidgetManager;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -13,6 +18,8 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.View;
+import android.widget.RemoteViews;
 
 public class MusicPlayerService extends Service implements
 		MediaPlayer.OnCompletionListener {
@@ -52,6 +59,7 @@ public class MusicPlayerService extends Service implements
 		mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		createMediaPlayer();
+		registerBroadcastReceiver();
 	}
 
 	@Override
@@ -70,15 +78,184 @@ public class MusicPlayerService extends Service implements
 			}
 		}
 
+		if (mIsReceiverRegistered == true) {
+			unregisterBroadcastReceiver();
+		}
+
 		super.onDestroy();
 	}
+
+	private AppWidgetManager mAppWidgetManager;
+	public static final String ARGUMENT_OPERATIONS = "ARGUMENT_OPERATIONS";
+	public static final String ARGUMENT_OPERATION_UNKNOWN = "UNKNOWN";
+	public static final String ARGUMENT_OPERATION_WAIT = "WAIT";
+	public static final String ARGUMENT_OPERATION_PLAY = "PLAY";
+	public static final String ARGUMENT_OPERATION_PAUSE = "PAUSE";
+	public static final String ARGUMENT_OPERATION_FAST_FORWARD = "FASTFORWARD";
+	public static final String ARGUMENT_OPERATION_REWIND = "REWIND";
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.v(TAG, "onStartCommand() action:" + intent.getAction());
 
+		String argOps = intent.getStringExtra(ARGUMENT_OPERATIONS);
+		if (argOps != null) {
+			if ((argOps.compareToIgnoreCase(ARGUMENT_OPERATION_PLAY) == 0)
+					&& (mIsPlaying == false)) {
+				Log.v(TAG, "... PLAY");
+				start();
+			} else if ((argOps.compareToIgnoreCase(ARGUMENT_OPERATION_PAUSE) == 0)
+					&& (mIsPlaying == true)) {
+				Log.v(TAG, "... PAUSE");
+				pause();
+			} else if (argOps
+					.compareToIgnoreCase(ARGUMENT_OPERATION_FAST_FORWARD) == 0) {
+				Log.v(TAG, "... FAST_FORWARD");
+				skip(true);
+			} else if (argOps.compareToIgnoreCase(ARGUMENT_OPERATION_REWIND) == 0) {
+				Log.v(TAG, "... REWIND");
+				skip(false);
+			} else {
+				Log.v(TAG, "... UNKNOWN");
+			}
+
+		}
+
+		Log.v(TAG, "onStartCommand() end...");
 		// return super.onStartCommand(intent, flags, startId);
 		return Service.START_NOT_STICKY;
+	}
+
+	private void updateWidgets() {
+		Log.w(TAG, "updateWidgets()");
+		// AppWidget
+		if (mAppWidgetManager == null) {
+			mAppWidgetManager = AppWidgetManager.getInstance(this
+					.getApplicationContext());
+		}
+
+		ComponentName thisWidget = new ComponentName(getApplicationContext(),
+				MusicWidgetProvider.class);
+		int[] allWidgetIds = mAppWidgetManager.getAppWidgetIds(thisWidget);
+		Log.w(TAG, "... Direct: " + String.valueOf(allWidgetIds.length));
+
+		// Go to app
+		Log.w(TAG, "... mBundle: " + mBundle);
+		if ((mIsPlaying == false) && (mBundle == null)) {
+			for (int widgetId : allWidgetIds) {
+				RemoteViews remoteViews = new RemoteViews(this
+						.getApplicationContext().getPackageName(),
+						R.layout.widgetlayout);
+
+				Log.w(TAG, "... WidgetExample " + widgetId);
+				remoteViews.setViewVisibility(
+						R.id.widget_linearlayout_controls, View.INVISIBLE);
+
+				Log.w(TAG, "... textview_opentheapp visible");
+
+				remoteViews.setViewVisibility(R.id.widget_textview_opentheapp,
+						View.VISIBLE);
+
+				Intent intentToApp = new Intent(this.getApplicationContext(),
+						MusicListActivity.class);
+				PendingIntent pendingIntentToApp = PendingIntent.getActivity(
+						getApplicationContext(), 0, intentToApp, 0);
+				remoteViews.setOnClickPendingIntent(
+						R.id.widget_textview_opentheapp, pendingIntentToApp);
+				mAppWidgetManager.updateAppWidget(widgetId, remoteViews);
+			}
+			mAppWidgetManager.notifyAppWidgetViewDataChanged(allWidgetIds,
+					R.id.widget_textview_opentheapp);
+		} else {
+			// INTENT
+			// Play / Pause
+			Intent intentPlayPause = new Intent(this.getApplicationContext(),
+					MusicPlayerService.class);
+			if (mIsPlaying) {
+				// To Pause
+				intentPlayPause.putExtra(ARGUMENT_OPERATIONS,
+						ARGUMENT_OPERATION_PAUSE);
+			} else {
+				// To Play
+				intentPlayPause.putExtra(ARGUMENT_OPERATIONS,
+						ARGUMENT_OPERATION_PLAY);
+			}
+			intentPlayPause.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+			PendingIntent pendingIntentPlayPause = PendingIntent.getService(
+					getApplicationContext(), 0, intentPlayPause,
+					PendingIntent.FLAG_UPDATE_CURRENT);
+
+			// Fast Forward
+			Intent intentFastForward = new Intent(this.getApplicationContext(),
+					MusicPlayerService.class);
+			intentFastForward.putExtra(ARGUMENT_OPERATIONS,
+					ARGUMENT_OPERATION_FAST_FORWARD);
+			intentFastForward
+					.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+			PendingIntent pendingIntentFastForward = PendingIntent.getService(
+					getApplicationContext(), 1, intentFastForward,
+					PendingIntent.FLAG_UPDATE_CURRENT);
+
+			// Rewind
+			Intent intentRewind = new Intent(this.getApplicationContext(),
+					MusicPlayerService.class);
+			intentRewind.putExtra(ARGUMENT_OPERATIONS,
+					ARGUMENT_OPERATION_REWIND);
+			intentRewind.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+			PendingIntent pendingIntentRewind = PendingIntent.getService(
+					getApplicationContext(), 2, intentRewind,
+					PendingIntent.FLAG_UPDATE_CURRENT);
+
+			// ALL WIDGET
+			for (int widgetId : allWidgetIds) {
+				RemoteViews remoteViews = new RemoteViews(this
+						.getApplicationContext().getPackageName(),
+						R.layout.widgetlayout);
+
+				Log.w(TAG, "... WidgetExample " + widgetId);
+				remoteViews.setViewVisibility(R.id.widget_textview_opentheapp,
+						View.INVISIBLE);
+
+				Log.w(TAG, "... linearlayout_controls visible");
+
+				remoteViews.setViewVisibility(
+						R.id.widget_linearlayout_controls, View.VISIBLE);
+
+				// Set the text
+				remoteViews.setTextViewText(R.id.widget_textview_title,
+						mMediaTitle);
+
+				// Register an onClickListener
+				// Play / Pause
+				if (mIsPlaying) {
+					// To Pause
+					remoteViews.setImageViewResource(
+							R.id.widget_button_playpause,
+							R.drawable.ic_action_pause);
+				} else {
+					// To Play
+					remoteViews.setImageViewResource(
+							R.id.widget_button_playpause,
+							R.drawable.ic_action_play);
+				}
+				remoteViews.setOnClickPendingIntent(
+						R.id.widget_button_playpause, pendingIntentPlayPause);
+
+				// Fast Forward
+				remoteViews.setOnClickPendingIntent(
+						R.id.widget_button_fast_forward,
+						pendingIntentFastForward);
+
+				// Rewind
+				remoteViews.setOnClickPendingIntent(R.id.widget_button_rewind,
+						pendingIntentRewind);
+
+				mAppWidgetManager.updateAppWidget(widgetId, remoteViews);
+			}
+		}
+
+		mAppWidgetManager.notifyAppWidgetViewDataChanged(allWidgetIds,
+				R.id.widget_button_playpause);
 	}
 
 	private void createMediaPlayer() {
@@ -152,7 +329,7 @@ public class MusicPlayerService extends Service implements
 			mMediaDuration = (String) aBundle
 					.getString(MediaStore.Audio.Media.DURATION);
 
-			Log.v(TAG, "setDataSource() " + mMediaId + " : "
+			Log.v(TAG, "... setDataSource() " + mMediaId + " : "
 					+ mMediaDisplayName + " : " + mMediaTitle + " : "
 					+ mMediaArtist);
 
@@ -181,6 +358,7 @@ public class MusicPlayerService extends Service implements
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		Log.v(TAG, "... mBundle updated here");
 		mBundle = aBundle;
 	}
 
@@ -192,6 +370,7 @@ public class MusicPlayerService extends Service implements
 		try {
 			mMediaPlayer.start();
 			mIsPlaying = true;
+			updateWidgets();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -205,6 +384,7 @@ public class MusicPlayerService extends Service implements
 		try {
 			mMediaPlayer.pause();
 			mIsPlaying = false;
+			updateWidgets();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -222,12 +402,12 @@ public class MusicPlayerService extends Service implements
 		}
 	}
 
-	public int skip(boolean aForward) {
-		Log.v(TAG, "skip(" + (aForward ? "FastForward" : "Rewind") + ")");
+	public int skip(boolean aToForward) {
+		Log.v(TAG, "skip(" + (aToForward ? "FastForward" : "Rewind") + ")");
 		loadPrefSkipTime();
 
 		int destPos;
-		if (aForward) {
+		if (aToForward) {
 			destPos = mCurrentPosition + mPrefSkipTime;
 			destPos = (destPos > mTotalDuration ? mTotalDuration : destPos);
 		} else {
@@ -262,7 +442,7 @@ public class MusicPlayerService extends Service implements
 	public String getDisplayName() {
 		return mMediaDisplayName;
 	}
-	
+
 	public String getId() {
 		return mMediaId;
 	}
@@ -325,4 +505,75 @@ public class MusicPlayerService extends Service implements
 		super.onRebind(intent);
 	}
 
+	private boolean mIsReceiverRegistered = false;
+	BroadcastReceiver myBroadcastReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String msg = intent.getStringExtra("MSG");
+
+			Log.v(TAG, "onReceive " + intent.getAction() + " " + msg);
+			if (intent.getAction().equalsIgnoreCase(
+					android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
+				Log.d(TAG, "...audio becoming noisy, pause()");
+				pause();
+			} else if (intent.getAction().equalsIgnoreCase(
+					Intent.ACTION_HEADSET_PLUG)) {
+				int state = intent.getIntExtra("state", -1);
+				switch (state) {
+				case 0:
+					Log.d(TAG, "...Headset is unplugged, pause()");
+					pause();
+					break;
+				case 1:
+					Log.d(TAG, "...Headset is plugged");
+					break;
+				default:
+					Log.d(TAG, "I have no idea what the headset state is");
+				}
+
+			}
+		}
+
+	};
+
+	private void registerBroadcastReceiver() {
+		if (mIsReceiverRegistered == false) {
+			mContext.registerReceiver(myBroadcastReceiver, new IntentFilter(
+					"android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY"));
+			mContext.registerReceiver(myBroadcastReceiver, new IntentFilter(
+					"android.intent.action.HEADSET_PLUG"));
+			mIsReceiverRegistered = true;
+		}
+
+	}
+
+	private void unregisterBroadcastReceiver() {
+		if (mIsReceiverRegistered == true) {
+			mContext.unregisterReceiver(myBroadcastReceiver);
+			mIsReceiverRegistered = false;
+		}
+	}
+
+	private void createNotification() {
+		Notification notification = new Notification.Builder(getApplicationContext())
+	    // Show controls on lock screen even when user hides sensitive content.
+	    .setVisibility(Notification.VISIBILITY_PUBLIC)
+	    .setSmallIcon(R.drawable.ic_stat_player)
+	    // Add media control buttons that invoke intents in your media service
+	    .addAction(R.drawable.ic_action_rewind, "Previous", prevPendingIntent) // #0
+	    .addAction(R.drawable.ic_pause, "Pause", pausePendingIntent)  // #1
+	    .addAction(R.drawable.ic_next, "Next", nextPendingIntent)     // #2
+	    // Apply the media style template
+	    .setStyle(new Notification.MediaStyle()
+	    .setShowActionsInCompactView(1 /* #1: pause button */)
+	    .setMediaSession(mMediaSession.getSessionToken())
+	    .setContentTitle("Wonderful music")
+	    .setContentText("My Awesome Band")
+	    .setLargeIcon(albumArtBitmap)
+	    .build();
+	}
+
+	private void deleteNotification() {
+
+	}
 }

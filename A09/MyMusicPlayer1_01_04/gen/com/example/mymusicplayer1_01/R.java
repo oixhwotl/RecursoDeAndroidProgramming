@@ -43,10 +43,10 @@ public final class R {
         public static final int ic_launcher=0x7f02000e;
     }
     public static final class id {
-        public static final int action_list=0x7f0b0014;
-        public static final int action_player=0x7f0b0012;
-        public static final int action_search=0x7f0b0011;
-        public static final int action_settings=0x7f0b0013;
+        public static final int action_list=0x7f0b001a;
+        public static final int action_player=0x7f0b0018;
+        public static final int action_search=0x7f0b0017;
+        public static final int action_settings=0x7f0b0019;
         public static final int list_listview_musiclist=0x7f0b0000;
         public static final int listitem_textview_artist=0x7f0b0002;
         public static final int listitem_textview_duration=0x7f0b0004;
@@ -64,11 +64,18 @@ public final class R {
         public static final int player_textview_time_progress=0x7f0b0007;
         public static final int player_textview_time_total=0x7f0b0008;
         public static final int player_textview_title=0x7f0b0005;
+        public static final int widget_button_fast_forward=0x7f0b0016;
+        public static final int widget_button_playpause=0x7f0b0014;
+        public static final int widget_button_rewind=0x7f0b0015;
+        public static final int widget_linearlayout_controls=0x7f0b0012;
+        public static final int widget_textview_opentheapp=0x7f0b0011;
+        public static final int widget_textview_title=0x7f0b0013;
     }
     public static final class layout {
         public static final int activity_music_list=0x7f030000;
         public static final int activity_music_list_item=0x7f030001;
         public static final int activity_music_player=0x7f030002;
+        public static final int widgetlayout=0x7f030003;
     }
     public static final class menu {
         public static final int music_list=0x7f0a0000;
@@ -145,5 +152,6 @@ public final class R {
     }
     public static final class xml {
         public static final int pref_screen=0x7f040000;
+        public static final int widgetprovider=0x7f040001;
     }
 }
