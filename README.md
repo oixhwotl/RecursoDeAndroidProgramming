@@ -15,9 +15,9 @@ La lista de videos
 - A09 Media Player
 - A10 Monetizar Su Aplicación
 - A11 Bluetooth
-- A12 MapView
+- A12 Sensores
 - A13 Augmented Realidad
-- A14 Multiplataforma con PhoneGap y jQuery Mobile
+- A14 PhoneGap y jQuery Mobile
 - A15 Conclusion
 
 ----------------------------------
