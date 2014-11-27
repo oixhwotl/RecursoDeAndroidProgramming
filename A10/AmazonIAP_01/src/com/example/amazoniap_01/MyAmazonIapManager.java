@@ -8,7 +8,6 @@ import com.amazon.device.iap.model.FulfillmentResult;
 import com.amazon.device.iap.model.Product;
 import com.amazon.device.iap.model.Receipt;
 import com.amazon.device.iap.model.UserData;
-import com.amazon.sample.iap.entitlement.SampleIapManager.EntitlementRecord;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -139,6 +138,8 @@ public class MyAmazonIapManager {
 
 		final long cancelDate = aReceipt.isCanceled() ? aReceipt
 				.getCancelDate().getTime() : EntitlementRecord.DATE_NOT_SET;
+		mRecord.setPurchaseDate(purchaseDate);
+		mRecord.setCancelDate(cancelDate);
 	}
 
 	private void handleEntitlementPurchase(final Receipt aReceipt,
@@ -173,24 +174,24 @@ public class MyAmazonIapManager {
 		String receiptId = aReceipt.getReceiptId();
 		final EntitlementRecord record;
 		if (receiptId == null) {
-			// The revoked receipt's receipt id may be null on older devices.
-			record = dataSource.getLatestEntitlementRecordBySku(aUserId,
-					aReceipt.getSku());
+			record = mRecord;
 			receiptId = record.getReceiptId();
 		} else {
-			record = dataSource.getEntitlementRecordByReceiptId(receiptId);
+			if (mRecord.getReceiptId().equals(receiptId)) {
+				record = mRecord;
+			} else {
+				record = null;
+			}
 		}
 		if (record == null) {
-			// No purchase record for the entitlement before, do nothing.
 			return;
 		}
 		if (record.getCancelDate() == EntitlementRecord.DATE_NOT_SET
 				|| record.getCancelDate() > System.currentTimeMillis()) {
 			final long cancelDate = aReceipt.getCancelDate() != null ? aReceipt
 					.getCancelDate().getTime() : System.currentTimeMillis();
-			dataSource.cancelEntitlement(receiptId, cancelDate);
+			mRecord.setCancelDate(cancelDate);
 		} else {
-			// Already canceled, do nothing
 			return;
 		}
 
@@ -246,4 +247,22 @@ public class MyAmazonIapManager {
 		}
 	}
 
+	public class UserIapData {
+		private final String mAmazonUserId;
+		private final String mAmazonMarketplace;
+
+		public String getAmazonUserId() {
+			return mAmazonUserId;
+		}
+
+		public String getAmazonMarketplace() {
+			return mAmazonMarketplace;
+		}
+
+		public UserIapData(final String aAmazonUserId,
+				final String aAmazonMarketplace) {
+			mAmazonUserId = aAmazonUserId;
+			mAmazonMarketplace = aAmazonMarketplace;
+		}
+	}
 }

@@ -39,7 +39,7 @@ public class MainActivity extends Activity {
 		}
 	};
 	private TextView mTextView;
-	
+
 	private Handler mGuiThreadHandler;
 
 	@Override
@@ -55,11 +55,11 @@ public class MainActivity extends Activity {
 		mTextView.setBackgroundColor(Color.WHITE);
 
 		mGuiThreadHandler = new Handler();
-		
+
 		setupIapOnCreate();
 
 	}
-	
+
 	private void enableLevel2InView() {
 		mGuiThreadHandler.post(new Runnable() {
 			@Override
@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
 			}
 		});
 	}
-	
+
 	private void disableLevel2InView() {
 		mGuiThreadHandler.post(new Runnable() {
 			@Override
@@ -81,12 +81,13 @@ public class MainActivity extends Activity {
 			}
 		});
 	}
-	
+
 	public void showMessage(final String aMessage) {
 		Toast.makeText(MainActivity.this, aMessage, Toast.LENGTH_LONG).show();
 	}
-	
-	public void setLevel2Availability(final boolean aProductAvailable, final boolean aUserAlreadyPurchased) {
+
+	public void setLevel2Availability(final boolean aProductAvailable,
+			final boolean aUserAlreadyPurchased) {
 		if (aProductAvailable) {
 			if (aUserAlreadyPurchased) {
 				enableLevel2InView();
@@ -109,32 +110,27 @@ public class MainActivity extends Activity {
 		PurchasingService.registerListener(this.getApplicationContext(),
 				myAmazonPurchasingListener);
 	}
-	
-	
 
 	@Override
 	protected void onStart() {
 		super.onStart();
 		Log.v(TAG, "onStart()");
 		final Set<String> productSkus = new HashSet<String>();
-		for (final MySku mySku:MySku.values()) {
+		for (final MySku mySku : MySku.values()) {
 			productSkus.add(mySku.getSku());
 		}
 		PurchasingService.getProductData(productSkus);
 	}
-	
-    @Override
-    protected void onResume() {
-        super.onResume();
-         Log.d(TAG, "onResume: call getUserData");
-        PurchasingService.getUserData();
 
-        Log.d(TAG, "onResume: getPurchaseUpdates");
-        PurchasingService.getPurchaseUpdates(false);
-    }
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Log.d(TAG, "onResume: call getUserData");
+		PurchasingService.getUserData();
 
-
-
+		Log.d(TAG, "onResume: getPurchaseUpdates");
+		PurchasingService.getPurchaseUpdates(false);
+	}
 
 	class MyAmazonPurchasingListener implements PurchasingListener {
 		private static final String TAG = "MyAmazonPurchasingListener";
