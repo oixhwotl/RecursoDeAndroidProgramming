@@ -23,8 +23,8 @@
             </intent-filter>
         </activity>
         <provider
-      		android:name=".contentprovider.MyWordContentProvider"
-      		android:authorities="com.example.ejemploconsqlite_01.contentprovider" >
+      		android:name=".MyWordContentProvider"
+      		android:authorities="com.example.ejemploconsqlite_01" >
    		</provider>
     </application>
 
