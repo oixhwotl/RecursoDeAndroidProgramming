@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.TextView;
@@ -60,6 +61,8 @@ public class MainActivity extends Activity {
 	private TextView mTextViewGpsLo;
 	private TextView mTextViewGpsAl;
 
+	private MyCompassView mMyCompassView;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.v(TAG, "onCreate()");
@@ -70,6 +73,8 @@ public class MainActivity extends Activity {
 		mSurfaceView = (SurfaceView) findViewById(R.id.surfaceview1);
 		mSurfaceHolder = mSurfaceView.getHolder();
 		mSurfaceHolder.addCallback(mSurfaceHolderCallback);
+
+		mMyCompassView = (MyCompassView) findViewById(R.id.mycompassview);
 
 		initTextViews();
 
@@ -217,6 +222,7 @@ public class MainActivity extends Activity {
 		Log.v(TAG, "initLocationManager() ");
 
 		mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
 		// criteria.setAltitudeRequired(false);
@@ -250,7 +256,6 @@ public class MainActivity extends Activity {
 						arg0.values.length);
 				mIsMagDataReady = true;
 			}
-
 
 			setSensorViews();
 
@@ -298,8 +303,10 @@ public class MainActivity extends Activity {
 				mOrientation[1] = (float) Math.toDegrees(mOrientation[1]);
 				mOrientation[2] = (float) Math.toDegrees(mOrientation[2]);
 
+				mMyCompassView.updateData(mOrientation);
 				System.arraycopy(ZEROS3F, 0, mAccData, 0, ZEROS3F.length);
 			}
+
 		}
 
 	};
@@ -318,6 +325,7 @@ public class MainActivity extends Activity {
 					SensorManager.SENSOR_DELAY_NORMAL);
 			System.arraycopy(ZEROS3F, 0, mMagData, 0, ZEROS3F.length);
 		}
+
 		if (mLocationManager != null) {
 			mLocationManager.requestLocationUpdates(mLocationProviderName, 50,
 					0, mLocationListener);
@@ -349,6 +357,14 @@ public class MainActivity extends Activity {
 		stopCamera();
 		unregisterSensors();
 		super.onPause();
+	}
+
+	@Override
+	protected void onDestroy() {
+		Log.v(TAG, "onDestroy() ");
+		stopCamera();
+		unregisterSensors();
+		super.onDestroy();
 	}
 
 	@Override
