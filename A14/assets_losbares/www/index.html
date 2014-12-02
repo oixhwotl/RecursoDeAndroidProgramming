@@ -11,12 +11,13 @@
         	maximum-scale=1, minimum-scale=1, 
         	width=device-width, height=device-height, 
         		target-densitydpi=medium-dpi" />
-        	
+
 <link rel="shortcut icon" href="icon.png">
 
 <title>Bars near You</title>
 
-<link rel="stylesheet" type="text/css" href="css/jquery.mobile-1.4.4.css" />
+<link rel="stylesheet" type="text/css"
+	href="css/jquery.mobile-1.4.4.css" />
 <link rel="stylesheet" type="text/css" href="css/index.css" />
 
 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
@@ -76,9 +77,10 @@
         	'message: ' + error.message + '\n');
 	}
 	
-	var barList = [];
-	var barListMarkerInfo = [];
-	var barListList = [];
+	var barList = new Array();
+	var barListMarkerInfo = new Array();
+	var barListList = new Array();
+	
 	function updateAndRefreshUI() {
 		console.log('updateAndRefreshUI');
 		
@@ -93,31 +95,37 @@
 			console.log('getJSON()');
 			
 			$.each( data, function( key, val ) {
-				console.log(key);
-				console.log(val[0]['name']);
+				//console.log(key);
+				//console.log(val[0]['name']);
 				
 				barList = val;
 				//barList = $.parseJSON(val);
 				
 				$.each ( barList, function ( key2, val2 ) {
-					console.log(key2);
-					console.log(val2);
+					//console.log(key2);
+					//console.log(val2);
 					
 					var anObj = val2;
-					console.log(anObj['name']);
+					//console.log(anObj['name']);
 					if(anObj['promotion']){
 						barListMarkerInfo.push ( [anObj['name'], anObj['location']['long'], anObj['location']['lat'], 1] );
 						
-						barListList.push ("<li><a href=\"#map-page\"><h2>" + anObj['name'] + 
-								"</h2><p><strong>" + anObj['promotion'] + "</strong></p>" +
-								"<p>" + anObj['address'] + "</p></a></li>"
-						);
+						barListList.push ("<li><button class=\"ui-btn\" " + 
+								"onclick=\'saveSelectionAndShowMap(" + key2 + ");\' >" + 
+								"<h2>" + anObj['name'] + "</h2>" +
+								"<p><strong>" + anObj['promotion'] + "</strong></p>" +
+								"<p>" + anObj['address'] + "</p>" +
+								"</button></li>");
+						
 					} else {
 						barListMarkerInfo.push ( [anObj['name'], anObj['location']['long'], anObj['location']['lat'], 0] );
+
+						barListList.push ("<li><button class=\"ui-btn\" " + 
+								"onclick=\'saveSelectionAndShowMap(" + key2 + ");\' >" + 
+								"<h2>" + anObj['name'] + "</h2>" +
+								"<p>" + anObj['address'] + "</p>" +
+								"</button></li>");
 						
-						barListList.push ("<li><a href=\"#map-page\"><h2>" + anObj['name'] + 
-								"</h2><p>" + anObj['address'] + "</p></a></li>"
-						);
 					}
 					
 				} );
@@ -126,110 +134,194 @@
 			// update list
 			$("#barlist").append(barListList.join(" "));
 		});
-	}
+	};
+	
+	var storeObj = {
+			ind : -1
+	};
+	
+	function saveSelectionAndShowMap(arrayInd) {
+		console.log('saveSelectionAndShowMap()');
+		console.log(name);
+		
+		storeObj.ind = arrayInd;
+		
+		window.location.href = "#map-page";
+		//return true;
+	};
+
 	
 	/*
 	 * Google Maps documentation: http://code.google.com/apis/maps/documentation/javascript/basics.html
 	 * Geolocation documentation: http://dev.w3.org/geo/api/spec-source.html
 	 */
-	$( document ).on( "pagecreate", "#map-page", function() {
-	    var defaultLatLng = new google.maps.LatLng(34.0983425, -118.3267434);
-	    if ( navigator.geolocation ) {
-	        function success(pos) {
-	            // Location found, show map with these coordinates
-	            drawMap(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
-	        }
-	        function fail(error) {
-	            drawMap(defaultLatLng);  // Failed to find location, show default map
-	        }
-	        // Find the users current position.  Cache the location for 5 minutes, timeout after 6 seconds
-	        navigator.geolocation.getCurrentPosition(success, fail, {maximumAge: 500000, enableHighAccuracy:true, timeout: 6000});
-	    } else {
-	        drawMap(defaultLatLng);  // No geolocation support, show default map
-	    }
+	var mapObj;
+	var mapMarkers = new Array();
 	
-	    function drawMap(latlng) {
-	        var myOptions = {
-	            zoom: 14,
-	            center: latlng,
-	            mapTypeId: google.maps.MapTypeId.ROADMAP
-	        };
-	        var map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
-	        // Add an overlay to the map of current lat/lng
-	        setMarkers(map, barListMarkerInfo);
-	    }
+	$( document ).on( "pagecreate", "#map-page", function() {
+		
+		var defaultLatLng = new google.maps.LatLng(13.673134, -89.278875);
+
+		if ( navigator.geolocation ) {
+			function success(pos) {
+				// Location found, show map with these coordinates
+				drawMap(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
+			}
+			function fail(error) {
+				drawMap(defaultLatLng);  // Failed to find location, show default map
+			}
+			// Find the users current position.  Cache the location for 5 minutes, timeout after 6 seconds
+			navigator.geolocation.getCurrentPosition(success, fail, {maximumAge: 500000, enableHighAccuracy:true, timeout: 6000});
+		} else {
+			drawMap(defaultLatLng);  // No geolocation support, show default map
+		}
+
+		function drawMap(latlng) {
+			console.log("drawMap()");
+			var myOptions = {
+				zoom: 14,
+				center: latlng,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			};
+			
+			mapObj = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
+			mapMarkers = new Array();
+			
+			console.log("barListMarkerInfo.length");
+			console.log(barListMarkerInfo.length);
+			for (var i = 0; i < barListMarkerInfo.length; i++) {
+				var location = barListMarkerInfo[i];
+				(function(i) {
+					//console.log(location[0]);
+				
+					var myLatLng = new google.maps.LatLng(location[1], location[2]);
+					var marker = new google.maps.Marker({
+						position: myLatLng,
+						map: mapObj,
+						title: location[0],
+						zIndex: location[3]
+					});
+				
+					mapMarkers.push(marker);
+				
+					var iw = new google.maps.InfoWindow({content: location[0]});
+					google.maps.event.addListener(marker, "click", function (e) { iw.open(mapObj, this); });
+				}(i));
+			};
+			
+			// Add markers to the map
+			console.log('initial marker');
+			console.log(storeObj.ind);
+			
+			if (storeObj.ind >= 0) {    
+				for(var i=0; i < mapMarkers.length; i++){
+					if (i == storeObj.ind) {
+			    		mapMarkers[i].setVisible(true);
+			    		console.log(mapMarkers[i].getTitle());
+					} else {
+						mapMarkers[i].setVisible(false);
+					}
+			    }
+			} else {
+				for(var i=0; i<mapMarkers.length; i++){
+			    	mapMarkers[i].setMap(true);
+			    }
+			}
+		}
 	});
 	
-	function setMarkers(map, locations) {
+	$(document).on("pagebeforeshow", "#map-page", function() {
+		// Add an overlay to the map of current lat/lng
+		console.log('map-page pagebeforeshow');
+		setMarkers();
+	});
+	
+	function setMarkers() {
 		// Add markers to the map
 		console.log('setMarkers()');
-		for (var i = 0; i < locations.length; i++) {
-			var location = locations[i];
-			console.log(location[0]);
-			var myLatLng = new google.maps.LatLng(location[1], location[2]);
-		    var marker = new google.maps.Marker({
-		        position: myLatLng,
-		        map: map,
-		        title: location[0],
-		        zIndex: location[3]
-		    });
-		    var iw = new google.maps.InfoWindow({content: location[0]});
-		    google.maps.event.addListener(marker, "click", function (e) { iw.open(map, this); });
-		  }
+		console.log(storeObj.ind);
+		
+		if (storeObj.ind >= 0) {    
+			for(var i = 0; i < mapMarkers.length; i++){
+				if (i == storeObj.ind) {
+		    		mapMarkers[i].setVisible(true);
+				} else {
+					mapMarkers[i].setVisible(false);
+				}
+		    }
+		} else {
+			for(var i = 0; i < mapMarkers.length; i++){
+		    	mapMarkers[i].setVisible(true);
+		    }
 		}
+	};
+
 </script>
-        
+
 <script type="text/javascript" src="js/jquery.mobile-1.4.4.js"></script>
 <script type="text/javascript" src="cordova.js"></script>
 
 <style>
-#map-page, #map-canvas { width: 100%; height: 100%; padding: 0; }
+#map-page,#map-canvas {
+	width: 100%;
+	height: 100%;
+	padding: 0;
+}
 </style>
 
 </head>
 <body>
-<div data-role="page" id="splashscreen">
-	<div role="main" class="ui-content app">
-		<h1>PhoneGap and jQuery Mobile</h1>
-		<div id="deviceready" class="blink">
-			<p class="event listening">Connecting to Device</p>
-			<p class="event received">Device is Ready</p>
-			<script type="text/javascript" src="cordova.js"></script>
-			<script type="text/javascript" src="js/index.js"></script>
-			<script type="text/javascript">
+	<div data-role="page" id="splashscreen">
+		<div role="main" class="ui-content app">
+			<h1>PhoneGap and jQuery Mobile</h1>
+			<div id="deviceready" class="blink">
+				<p class="event listening">Connecting to Device</p>
+				<p class="event received">Device is Ready</p>
+				<script type="text/javascript" src="cordova.js"></script>
+				<script type="text/javascript" src="js/index.js"></script>
+				<script type="text/javascript">
 				setTimeout(function(){
 					console.log('calling receivedAll()');
 					receivedAll();
 					}, 3000
 				);
 			</script>
+			</div>
 		</div>
 	</div>
-</div>
-	
-<div data-role="page" id="page1">
-	<div data-role="header" data-theme="b">
-		<button class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-refresh" onclick="updateAndRefreshUI();">Refresh</button>
-		<h1>Bars</h1>
-		<a href="#map-page" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-location">Map</a>
-	</div>
-	
-	<div role="main" class="ui-content">
-		<ul data-role="listview" data-inset="true" id="barlist">
-			
-		</ul>
-	</div>
-</div>
 
-<div data-role="page" id="map-page" data-url="map-page">
-    <div data-role="header" data-theme="a">
-		<a href="#page1" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-back">List</a>
-		<h1>Maps</h1>
+	<div data-role="page" id="page1">
+		<div data-role="header" data-theme="b">
+			<button
+				class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-refresh"
+				onclick="updateAndRefreshUI();">Refresh</button>
+			<h1>Bars</h1>
+			<button
+				class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-location"
+				onclick="saveSelectionAndShowMap(-1);">Map</button>
+		</div>
+
+		<div role="main" class="ui-content">
+			<ul data-role="listview" data-inset="true" id="barlist">
+
+			</ul>
+		</div>
 	</div>
-    <div role="main" class="ui-content" id="map-canvas">
-        <!-- map loads here... -->
-    </div>
-</div>
+
+	<div data-role="page" id="map-page" data-url="map-page">
+		    
+		<div data-role="header" data-theme="a">
+			<a href="#page1"
+				class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-back">List</a>
+			<h1>Maps</h1>
+		</div>
+		    
+		<div role="main" class="ui-content" id="map-canvas">
+			        
+			<!-- map loads here... -->
+			    
+		</div>
+	</div>
 
 </body>
 </html>
