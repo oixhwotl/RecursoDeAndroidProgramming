@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	>
+<TextView
+	android:layout_width="match_parent" 
+	android:layout_height="wrap_content" 
+    android:textSize="16sp" 
+	android:text="사진을 메일이나 인터넷 사이트를 통해 다른 사람에게 전송합니다."
+	/>
+<Button
+	android:id="@+id/btnreview"  
+	android:layout_width="match_parent" 
+	android:layout_height="wrap_content" 
+	android:onClick="mOnClick"
+	android:text="리뷰"
+	/>
+</LinearLayout>

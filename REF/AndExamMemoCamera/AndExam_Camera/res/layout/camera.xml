@@ -1,0 +1,46 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+<TextView  
+    android:layout_width="match_parent" 
+    android:layout_height="wrap_content" 
+    android:textSize="16sp" 
+    android:text="사진을 촬영하는 카메라입니다."
+    />
+<TextView  
+	android:id="@+id/txtstatus"  
+    android:layout_width="match_parent" 
+    android:layout_height="wrap_content" 
+    android:textSize="16sp" 
+    />
+<Button
+	android:id="@+id/btnreview"  
+	android:layout_width="match_parent" 
+	android:layout_height="wrap_content" 
+	android:onClick="mOnClick"
+	android:text="리뷰"
+	/>
+<Button
+	android:id="@+id/btnreviewprev"  
+	android:layout_width="match_parent" 
+	android:layout_height="wrap_content" 
+	android:onClick="mOnClick"
+	android:text="5초 후 리뷰"
+	/>
+<Button
+	android:id="@+id/btnshare"  
+	android:layout_width="match_parent" 
+	android:layout_height="wrap_content" 
+	android:onClick="mOnClick"
+	android:text="공유"
+	/>
+<Button
+	android:id="@+id/btnquit"  
+	android:layout_width="match_parent" 
+	android:layout_height="wrap_content" 
+	android:onClick="mOnClick"
+	android:text="종료"
+	/>
+</LinearLayout>

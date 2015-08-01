@@ -1,0 +1,30 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	>
+<TextView
+	android:layout_width="match_parent" 
+	android:layout_height="wrap_content" 
+	android:text="촬영한 사진을 확인합니다."
+    android:textSize="16sp" 
+	/>
+<ImageView
+	android:layout_width="wrap_content" 
+	android:layout_height="wrap_content"
+	android:src="@drawable/picture" 
+	/>
+<TextView
+    android:id="@+id/txtreview"
+	android:layout_width="match_parent" 
+	android:layout_height="wrap_content" 
+    android:textSize="16sp" 
+	/>
+<Button
+	android:id="@+id/btnshare"  
+	android:layout_width="match_parent" 
+	android:layout_height="wrap_content" 
+	android:onClick="mOnClick"
+	android:text="사진 공유"
+	/>
+</LinearLayout>
