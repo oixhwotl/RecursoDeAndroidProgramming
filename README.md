@@ -21,9 +21,8 @@ La lista de presentaciones
 - A15 Conclusion
 
 ----------------------------------
---Playlist de Videos--
---https://www.youtube.com/playlist?list=PLQCiiajdpppoOVoSi0d7Gtmfoohb_B8n2--
+~~Playlist de Videos
+https://www.youtube.com/playlist?list=PLQCiiajdpppoOVoSi0d7Gtmfoohb_B8n2~~
 
-----------------------------------
---Concurso de Programación Android en ITCA-FEPADE 2014--
---https://plus.google.com/u/0/communities/1027552293782325838490--
+~~Concurso de Programación Android en ITCA-FEPADE 2014
+https://plus.google.com/u/0/communities/1027552293782325838490~~
